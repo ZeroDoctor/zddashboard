@@ -1,6 +1,6 @@
 import 'dart:html';
 
-import 'util/html.dart';
+import 'src/util/html.dart';
 
 Future<void> main() async {
   BodyElement body = querySelector('#output') as BodyElement;
