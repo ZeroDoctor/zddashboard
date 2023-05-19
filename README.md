@@ -1,6 +1,6 @@
 # ZD Dashboard
 
-more experimental then production ready
+more experimental than production ready
 
 ## For Development
 
