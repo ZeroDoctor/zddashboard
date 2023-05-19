@@ -22,6 +22,8 @@ func NewController() *Controller {
 	}
 	router.SetHTMLTemplate(t)
 
+	router.StaticFile("/favicon.ico", "./ui/build/favicon.ico")
+
 	router.GET("/healthcheck", HealthCheck)
 	router.GET("/", IndexPage)
 	router.GET("/pages", PagePage)
