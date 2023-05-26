@@ -1,6 +1,6 @@
 package db
 
-import "github.com/zerodoctor/zddashboard/internal/api/model"
+import "github.com/zerodoctor/zddashboard/internal/service/api/model"
 
 func (db *DB) GetFoodPricesByCountryName(countryName string) ([]model.GlobalFoodPrice, error) {
 	globalFoodPrices := []model.GlobalFoodPrice{}

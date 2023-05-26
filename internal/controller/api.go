@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/zerodoctor/zddashboard/internal/api"
-	"github.com/zerodoctor/zddashboard/internal/api/model"
 	"github.com/zerodoctor/zddashboard/internal/db"
 	"github.com/zerodoctor/zddashboard/internal/service"
+	"github.com/zerodoctor/zddashboard/internal/service/api"
+	"github.com/zerodoctor/zddashboard/internal/service/api/model"
 )
 
 type API struct {

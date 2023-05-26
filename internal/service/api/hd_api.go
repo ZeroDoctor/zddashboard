@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/gocarina/gocsv"
-	"github.com/zerodoctor/zddashboard/internal/api/model"
+	"github.com/zerodoctor/zddashboard/internal/service/api/model"
 )
 
 func GetGlobalFoodPricesCSV(api *API) ([]model.GlobalFoodPrice, error) {
