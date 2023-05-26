@@ -1,7 +1,7 @@
 import 'dart:html';
 
-import 'lib/dart_theme.dart';
-import 'lib/plotly.dart';
+import 'src/lib/plotly/dart_theme.dart';
+import 'src/lib/plotly/plotly.dart';
 import 'src/util/html.dart';
 
 Future<void> main() async {
@@ -23,8 +23,8 @@ Future<void> main() async {
   ]);
 
   Data trace = Data(
-    x: [1, 2, 3, 4],
-    y: [10, 15, 13, 7],
+    x: [1, 2, 3, 4, 6],
+    y: [10, 15, 13, 7, 25],
     type: 'scatter',
   );
 

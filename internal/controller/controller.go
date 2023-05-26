@@ -4,16 +4,20 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/zerodoctor/zddashboard/internal/db"
 	"github.com/zerodoctor/zddashboard/internal/logger"
 )
 
 var log = logger.Logger()
 
 type Controller struct {
+	dbh *db.DB
 	*gin.Engine
 }
 
-func NewController() *Controller {
+func NewController(dbh *db.DB) *Controller {
+	api := NewAPI(dbh)
+
 	router := gin.Default()
 
 	t, err := loadTemplate(router)
@@ -28,7 +32,10 @@ func NewController() *Controller {
 	router.GET("/", IndexPage)
 	router.GET("/pages", PagePage)
 
+	router.GET("/api/getglobalfoodprices", api.GetGlobalFoodPrices)
+
 	return &Controller{
+		dbh:    dbh,
 		Engine: router,
 	}
 }
