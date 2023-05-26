@@ -32,7 +32,10 @@ func NewController(dbh *db.DB) *Controller {
 	router.GET("/", IndexPage)
 	router.GET("/pages", PagePage)
 
-	router.GET("/api/getglobalfoodprices", api.GetGlobalFoodPrices)
+	{
+		apiRouter := router.Group("/api")
+		apiRouter.GET("/getglobalfoodprices", api.GetGlobalFoodPrices)
+	}
 
 	return &Controller{
 		dbh:    dbh,

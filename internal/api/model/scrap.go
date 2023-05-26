@@ -1,5 +1,11 @@
 package model
 
+type DATA_NAME string
+
+const (
+	FOOD_PRICES DATA_NAME = "GLOBAL FOOD PRICES"
+)
+
 type ScrapMetadata struct {
 	ID          int    `db:"sm_id" json:"sm_id,omitempty"`
 	URL         string `db:"sm_url" json:"url,omitempty"`
