@@ -12,6 +12,7 @@ import (
 var log = logger.Logger()
 
 const SCHEMA_FILE string = "/sql/schema.lite.sql"
+const DB_NAME string = "data.db"
 
 func LoadEnv() {
 	env := os.Getenv("ENV")
@@ -27,7 +28,7 @@ func LoadEnv() {
 func main() {
 	LoadEnv()
 
-	conn, err := db.NewSqliteDB()
+	conn, err := db.NewSqliteDB(DB_NAME)
 	if err != nil {
 		log.Fatalf("failed to connect to sqlite db [error=%s]", err.Error())
 	}

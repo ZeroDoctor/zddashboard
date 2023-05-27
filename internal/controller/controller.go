@@ -16,7 +16,7 @@ type Controller struct {
 }
 
 func NewController(dbh *db.DB) *Controller {
-	api := NewAPI(dbh)
+	api := NewHumanDataAPI(dbh)
 
 	router := gin.Default()
 
@@ -34,7 +34,7 @@ func NewController(dbh *db.DB) *Controller {
 
 	{
 		apiRouter := router.Group("/api")
-		apiRouter.GET("/getglobalfoodprices", api.GetGlobalFoodPrices)
+		apiRouter.GET("/globalfoodprices", api.GetGlobalFoodPrices)
 	}
 
 	return &Controller{

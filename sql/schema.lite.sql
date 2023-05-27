@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS scrap_metadata (
 	data_name    TEXT NOT NULL,
     last_updated INTEGER NOT NULL,
 	
-	UNIQUE(scrap_url, data_name)
+	UNIQUE(sm_url, data_name)
 );
 
 CREATE TABLE IF NOT EXISTS global_food_prices (

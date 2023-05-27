@@ -22,6 +22,14 @@ type API struct {
 	baseQueries map[string]string
 }
 
+func NewAPI(host string, queries map[string]string) *API {
+	return &API{
+		host:        host,
+		client:      &http.Client{},
+		baseQueries: queries,
+	}
+}
+
 func (a *API) Call(method, path string, queries map[string]string, body io.Reader) (*http.Response, error) {
 	baseURL := a.host + path
 	values := url.Values{}
@@ -33,7 +41,7 @@ func (a *API) Call(method, path string, queries map[string]string, body io.Reade
 	}
 	perform := baseURL + "?" + values.Encode()
 
-	log.Debugf("api call [method=%s] [path=%s] [has_body=]",
+	log.Debugf("api call [method=%s] [path=%s] [has_body=%+v]",
 		method, perform, body == nil,
 	)
 

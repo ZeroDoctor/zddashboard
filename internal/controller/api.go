@@ -10,31 +10,32 @@ import (
 	"github.com/zerodoctor/zddashboard/internal/service/api/model"
 )
 
-type API struct {
+type HumanDataAPI struct {
 	dbh       *db.DB
 	hdservice *service.HumanDataService
 	*api.API
 }
 
-func NewAPI(dbh *db.DB) *API {
-	a := &api.API{}
+func NewHumanDataAPI(dbh *db.DB) *HumanDataAPI {
+	a := api.NewAPI("", nil)
 
-	return &API{
+	return &HumanDataAPI{
 		dbh:       dbh,
 		hdservice: service.NewHumanDataService(a, dbh),
 		API:       a,
 	}
 }
 
-func (a *API) GetGlobalFoodPrices(ctx *gin.Context) {
-	meta, err := a.dbh.GetScrapMetadataByName(string(model.FOOD_PRICES))
+func (hda *HumanDataAPI) GetGlobalFoodPrices(ctx *gin.Context) {
+	meta, err := hda.dbh.GetScrapMetadataByName(string(model.FOOD_PRICES))
 	if err != nil {
 		HandleError(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
 	if len(meta) <= 0 {
-		prices, err := a.hdservice.GetLatestGlobalFoodPricesData()
+		log.Warnf("failed to find metadata for global food prices. grabbing latest data from source...")
+		prices, err := hda.hdservice.GetLatestGlobalFoodPricesData()
 		if err != nil {
 			HandleError(ctx, http.StatusInternalServerError, err)
 			return
@@ -47,7 +48,7 @@ func (a *API) GetGlobalFoodPrices(ctx *gin.Context) {
 		return
 	}
 
-	prices, err := a.dbh.GetFoodPricesByMetaID(meta[0].ID)
+	prices, err := hda.dbh.GetFoodPricesByMetaID(meta[0].ID)
 	if err != nil {
 		HandleError(ctx, http.StatusInternalServerError, err)
 		return

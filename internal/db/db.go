@@ -28,8 +28,8 @@ type DB struct {
 	*sqlx.DB
 }
 
-func NewSqliteDB() (*DB, error) {
-	conn, err := sqlx.Connect("sqlite3", "data.db")
+func NewSqliteDB(dbName string) (*DB, error) {
+	conn, err := sqlx.Connect("sqlite3", dbName)
 	if err != nil {
 		return nil, err
 	}
@@ -40,8 +40,11 @@ func NewSqliteDB() (*DB, error) {
 }
 
 func (db *DB) ExecSchemaFile(fileName string) error {
-	if zdutil.FileExists(ROOT_DIR + fileName) {
-		data, err := os.ReadFile(ROOT_DIR + fileName)
+	schema := ROOT_DIR + fileName
+
+	log.Infof("executing schema [file=%s]", schema)
+	if zdutil.FileExists(schema) {
+		data, err := os.ReadFile(schema)
 		if err != nil {
 			return err
 		}

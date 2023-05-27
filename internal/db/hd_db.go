@@ -1,6 +1,8 @@
 package db
 
-import "github.com/zerodoctor/zddashboard/internal/service/api/model"
+import (
+	"github.com/zerodoctor/zddashboard/internal/service/api/model"
+)
 
 func (db *DB) GetFoodPricesByCountryName(countryName string) ([]model.GlobalFoodPrice, error) {
 	globalFoodPrices := []model.GlobalFoodPrice{}
@@ -112,13 +114,13 @@ func (db *DB) GetFoodPricesByMetaID(metadata int) ([]model.GlobalFoodPrice, erro
 
 func (db *DB) SaveGlobalFoodPrices(globalFoodPrices []model.GlobalFoodPrice) error {
 	insert := `INSERT INTO global_food_prices (
-		country_id, country_name, region_id, region_name
+		country_id, country_name, region_id, region_name,
 		city_id, city_name, food_id, food_name,
 		currency_id, currency_name, point_id, point_name,
 		weight_id, weight_name, month, year,
 		price, commodity_source, metadata_id
 	) VALUES (
-		:country_id, :country_name, :region_id, :region_name
+		:country_id, :country_name, :region_id, :region_name,
 		:city_id, :city_name, :food_id, :food_name,
 		:currency_id, :currency_name, :point_id, :point_name,
 		:weight_id, :weight_name, :month, :year,
@@ -145,8 +147,7 @@ func (db *DB) SaveGlobalFoodPrices(globalFoodPrices []model.GlobalFoodPrice) err
 		metadata_id      = excluded.metadata_id
 	;`
 
-	_, err := db.NamedExec(insert, globalFoodPrices)
-	return err
+	return BatchNamedExec(db, insert, globalFoodPrices)
 }
 
 func (db *DB) GetScrapMetadataByName(name string) ([]model.ScrapMetadata, error) {
@@ -165,7 +166,7 @@ func (db *DB) SaveScrapMetadata(metadata model.ScrapMetadata) (int64, error) {
 		sm_url, data_name, last_updated
 	) VALUES (
 		:sm_url, :data_name, :last_updated
-	) ON CONFLICT (scrap_url, data_name) DO UPDATE SET
+	) ON CONFLICT (sm_url, data_name) DO UPDATE SET
 		sm_url    = excluded.sm_url, 
 		data_name    = excluded.data_name, 
 		last_updated = excluded.last_updated
@@ -187,4 +188,23 @@ func (db *DB) SaveScrapMetadata(metadata model.ScrapMetadata) (int64, error) {
 	}
 
 	return id, nil
+}
+
+func BatchNamedExec[T any](db *DB, insert string, batch []T) error {
+	size := 999
+	if len(batch) < size {
+		size = len(batch)
+	}
+
+	for current := 0; current < len(batch); current += size {
+		if current+size > len(batch) {
+			size -= ((current + size) - len(batch))
+		}
+
+		if _, err := db.NamedExec(insert, batch[current:current+size]); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
