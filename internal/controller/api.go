@@ -1,13 +1,14 @@
 package controller
 
 import (
+	"errors"
 	"net/http"
 
+	"github.com/ggicci/httpin"
 	"github.com/gin-gonic/gin"
 	"github.com/zerodoctor/zddashboard/internal/db"
 	"github.com/zerodoctor/zddashboard/internal/service"
 	"github.com/zerodoctor/zddashboard/internal/service/api"
-	"github.com/zerodoctor/zddashboard/internal/service/api/model"
 )
 
 type HumanDataAPI struct {
@@ -27,28 +28,14 @@ func NewHumanDataAPI(dbh *db.DB) *HumanDataAPI {
 }
 
 func (hda *HumanDataAPI) GetGlobalFoodPrices(ctx *gin.Context) {
-	meta, err := hda.dbh.GetScrapMetadataByName(string(model.FOOD_PRICES))
-	if err != nil {
-		HandleError(ctx, http.StatusInternalServerError, err)
+	input, ok := ctx.Request.Context().Value(httpin.Input).(*service.GlobalFoodPricesQuery)
+	if !ok {
+		err := errors.New("failed to parses query")
+		HandleError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
-	if len(meta) <= 0 {
-		log.Warnf("failed to find metadata for global food prices. grabbing latest data from source...")
-		prices, err := hda.hdservice.GetLatestGlobalFoodPricesData()
-		if err != nil {
-			HandleError(ctx, http.StatusInternalServerError, err)
-			return
-		}
-
-		ctx.JSON(http.StatusOK, gin.H{
-			"success": true,
-			"data":    prices,
-		})
-		return
-	}
-
-	prices, err := hda.dbh.GetFoodPricesByMetaID(meta[0].ID)
+	prices, err := hda.hdservice.GetGlobalFoodPrices(input)
 	if err != nil {
 		HandleError(ctx, http.StatusInternalServerError, err)
 		return

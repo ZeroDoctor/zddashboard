@@ -4,112 +4,25 @@ import (
 	"github.com/zerodoctor/zddashboard/internal/service/api/model"
 )
 
-func (db *DB) GetFoodPricesByCountryName(countryName string) ([]model.GlobalFoodPrice, error) {
-	globalFoodPrices := []model.GlobalFoodPrice{}
-	query := `SELECT * FROM global_food_prices WHERE country_name LIKE $1%
+func (db *DB) GetFoodPricesWhere(clause string, values ...interface{}) ([]model.GlobalFoodPrice, error) {
+	prices := []model.GlobalFoodPrice{}
+
+	query := `SELECT * FROM global_food_prices WHERE ` + clause + `
 		ORDER BY COALESCE(country_name, region_name, city_name, food_name, month, year)`
 
-	if err := db.Select(&globalFoodPrices, query, countryName); err != nil {
-		return globalFoodPrices, err
-	}
-
-	return globalFoodPrices, nil
-}
-
-func (db *DB) GetFoodPricesByCountryID(countryID string) ([]model.GlobalFoodPrice, error) {
-	globalFoodPrices := []model.GlobalFoodPrice{}
-	query := `SELECT * FROM global_food_prices WHERE country_id LIKE $1%
-		ORDER BY COALESCE(country_name, region_name, city_name, food_name, month, year)`
-
-	if err := db.Select(&globalFoodPrices, query, countryID); err != nil {
-		return globalFoodPrices, err
-	}
-
-	return globalFoodPrices, nil
-}
-
-func (db *DB) GetFoodPricesByCityName(cityName string) ([]model.GlobalFoodPrice, error) {
-	globalFoodPrices := []model.GlobalFoodPrice{}
-	query := `SELECT * FROM global_food_prices WHERE city_name LIKE $1%
-		ORDER BY COALESCE(country_name, region_name, city_name, food_name, month, year)`
-
-	if err := db.Select(&globalFoodPrices, query, cityName); err != nil {
-		return globalFoodPrices, err
-	}
-
-	return globalFoodPrices, nil
-}
-
-func (db *DB) GetFoodPricesByCityID(cityID string) ([]model.GlobalFoodPrice, error) {
-	globalFoodPrices := []model.GlobalFoodPrice{}
-	query := `SELECT * FROM global_food_prices WHERE city_id LIKE $1%
-		ORDER BY COALESCE(country_name, region_name, city_name, food_name, month, year)`
-
-	if err := db.Select(&globalFoodPrices, query, cityID); err != nil {
-		return globalFoodPrices, err
-	}
-
-	return globalFoodPrices, nil
-}
-
-func (db *DB) GetFoodPricesByFoodName(foodName string) ([]model.GlobalFoodPrice, error) {
-	globalFoodPrices := []model.GlobalFoodPrice{}
-	query := `SELECT * FROM global_food_prices WHERE food_name LIKE $1%
-		ORDER BY COALESCE(country_name, region_name, city_name, food_name, month, year)`
-
-	if err := db.Select(&globalFoodPrices, query, foodName); err != nil {
-		return globalFoodPrices, err
-	}
-
-	return globalFoodPrices, nil
-}
-
-func (db *DB) GetFoodPricesByFoodID(foodID string) ([]model.GlobalFoodPrice, error) {
-	globalFoodPrices := []model.GlobalFoodPrice{}
-	query := `SELECT * FROM global_food_prices WHERE food_id LIKE $1% 
-		ORDER BY COALESCE(country_name, region_name, city_name, food_name, month, year)`
-
-	if err := db.Select(&globalFoodPrices, query, foodID); err != nil {
-		return globalFoodPrices, err
-	}
-
-	return globalFoodPrices, nil
-}
-
-func (db *DB) GetFoodPricesLessThanYear(year int) ([]model.GlobalFoodPrice, error) {
-	globalFoodPrices := []model.GlobalFoodPrice{}
-	query := `SELECT * FROM global_food_prices WHERE year > $1 
-		ORDER BY COALESCE(country_name, region_name, city_name, food_name, month, year)`
-
-	if err := db.Select(&globalFoodPrices, query, year); err != nil {
-		return globalFoodPrices, err
-	}
-
-	return globalFoodPrices, nil
-}
-
-func (db *DB) GetFoodPricesGreaterThanYear(year int) ([]model.GlobalFoodPrice, error) {
-	globalFoodPrices := []model.GlobalFoodPrice{}
-	query := `SELECT * FROM global_food_prices WHERE year < $1 
-		ORDER BY COALESCE(country_name, region_name, city_name, food_name, month, year)`
-
-	if err := db.Select(&globalFoodPrices, query, year); err != nil {
-		return globalFoodPrices, err
-	}
-
-	return globalFoodPrices, nil
+	log.Debugf("GetFoodPricesWhere [query=%s]", query)
+	err := db.Select(&prices, query, values...)
+	return prices, err
 }
 
 func (db *DB) GetFoodPricesByMetaID(metadata int) ([]model.GlobalFoodPrice, error) {
-	globalFoodPrices := []model.GlobalFoodPrice{}
+	prices := []model.GlobalFoodPrice{}
 	query := `SELECT * FROM global_food_prices WHERE metadata_id = $1
 		ORDER BY COALESCE(country_name, region_name, city_name, food_name, month, year)`
 
-	if err := db.Select(&globalFoodPrices, query, metadata); err != nil {
-		return globalFoodPrices, err
-	}
-
-	return globalFoodPrices, nil
+	log.Debugf("GetFoodPricesByMetaID [query=%s]", query)
+	err := db.Select(&prices, query, metadata)
+	return prices, err
 }
 
 func (db *DB) SaveGlobalFoodPrices(globalFoodPrices []model.GlobalFoodPrice) error {

@@ -2,7 +2,10 @@ package db
 
 import (
 	"errors"
+	"fmt"
 	"os"
+	"reflect"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -54,4 +57,32 @@ func (db *DB) ExecSchemaFile(fileName string) error {
 	}
 
 	return ErrFileNotFound
+}
+
+func JoinClauses(clauses []string, exclusive bool) string {
+	for i := range clauses {
+		clauses[i] = fmt.Sprintf("%s $%d", clauses[i], i+1)
+	}
+
+	if exclusive {
+		return strings.Join(clauses, " AND ")
+	}
+
+	return strings.Join(clauses, " OR ")
+}
+
+// TODO: think of a way to auto build queries
+func BuildClause(query any) (string, error) {
+	clause := ""
+
+	t := reflect.TypeOf(query)
+	if t.Kind() != reflect.Pointer && t.Elem().Kind() != reflect.Struct {
+		return clause, fmt.Errorf("expected pointer sturct not [type=%T]", query)
+	}
+
+	for i := 0; i < t.NumField(); i++ {
+
+	}
+
+	return clause, nil
 }
