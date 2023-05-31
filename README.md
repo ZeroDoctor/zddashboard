@@ -13,5 +13,5 @@ make init
 build and serve web ui files
 
 ```sh
-make serve
+make build && ./zddashboard 
 ```
