@@ -45,8 +45,8 @@ class Data {
   external List<Style> get table;
 
   external factory Data({
-    List<num> x,
-    List<num> y,
+    List<dynamic> x,
+    List<dynamic> y,
     List<String> labels,
     String type,
     String mode,

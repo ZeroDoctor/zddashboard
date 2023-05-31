@@ -3,4 +3,6 @@
 
 # binaries
 *.exe
+
+*.db
 zddashboard

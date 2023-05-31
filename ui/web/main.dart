@@ -1,37 +1,69 @@
 import 'dart:html';
+import 'dart:convert';
 
-import 'src/lib/plotly/dart_theme.dart';
-import 'src/lib/plotly/plotly.dart';
-import 'src/util/html.dart';
+import 'lib/plotly/dart_theme.dart';
+import 'lib/plotly/plotly.dart';
+import 'src/components/navbar.dart';
+import 'src/form_data/global_food_prices.dart';
+
+Navbar createNavbar() {
+  return Navbar(
+    AnchorElement()..text = 'Dashboard',
+    [
+      Menu(
+        AnchorElement()
+          ..href = '/pages'
+          ..text = 'Pages',
+        [],
+      ),
+    ],
+    DivElement(),
+  );
+}
+
+Future<List<Data>> fetchGlobalFoodPricesData() async {
+  List<CountryFoodPrice> countries = await fetchGlobalFoodPrices();
+  Map<String, List<CountryFoodPrice>> byCountry =
+      averageGlobalFoodPricesByCountry(countries);
+
+  List<Data> data = [];
+  List<CountryFoodPrice> senegal = byCountry['Chad']!;
+
+  Map<String, List<CountryFoodPrice>> byFood = {};
+  for (var d in senegal) {
+    if (byFood[d.food] == null) byFood[d.food] = [];
+    byFood[d.food]?.add(d);
+  }
+  window.console.log(byFood);
+
+  byFood.forEach((name, value) {
+    value.sort((a, b) {
+      var aDate = DateTime.parse(a.date);
+      var bDate = DateTime.parse(b.date);
+      return aDate.compareTo(bDate);
+    });
+
+    data.add(Data(
+      x: value.map((element) => element.date).toList(),
+      y: value.map((element) => element.price).toList(),
+      name: name,
+    ));
+  });
+
+  return data;
+}
 
 Future<void> main() async {
-  Element child = htmlStringToElement("""
-    <div id="container" class="container mx-auto flex flex-col justify-center items-center h-1/2 prose prose-lg">
-      <a href="/pages">Pages</a>
-    </div>
-""");
+  // render elements
+  List<Element> responses = await Future.wait([createNavbar().render()]);
 
-  BodyElement body = querySelector('#output') as BodyElement;
-  body.className = "h-screen";
-  body.children.addAll([
-    child,
-    htmlStringToElement("""
-      <div class="lg:grid"> 
-        <div id="graph" class="place-self-center lg:mx-4 max-w-screen-lg"></div>
-      </div>
-"""),
-  ]);
+  DivElement navbarContainer = querySelector('#navbar') as DivElement;
+  navbarContainer.children.add(responses[0]);
 
-  Data trace = Data(
-    x: [1, 2, 3, 4, 6],
-    y: [10, 15, 13, 7, 25],
-    type: 'scatter',
-  );
-
-  List<Data> data = [trace];
+  List<Data> data = await fetchGlobalFoodPricesData();
 
   Layout layout = Layout(
-    title: 'Line Plot',
+    title: 'Chad',
     template: darkTheme,
     autosize: true,
   );
@@ -41,5 +73,5 @@ Future<void> main() async {
     responsive: true,
   );
 
-  newPlot('graph', data, layout, config);
+  newPlot('globalPrices', data, layout, config);
 }

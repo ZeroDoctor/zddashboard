@@ -39,7 +39,7 @@ func (hd *HumanDataService) GetGlobalFoodPrices(query *GlobalFoodPricesQuery) ([
 	}
 
 	lastUpdate := time.Unix(meta[0].LastUpdated, 0)
-	if len(meta) <= 0 || time.Since(lastUpdate) < (time.Hour*8765) {
+	if len(meta) <= 0 || time.Since(lastUpdate) > (time.Hour*8765) {
 		log.Warnf("failed to find metadata for global food prices. grabbing latest data from source...")
 		return hd.GetLatestGlobalFoodPricesData()
 	}
