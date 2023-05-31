@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"os"
 	"time"
 
@@ -38,13 +37,11 @@ func (hd *HumanDataService) GetGlobalFoodPrices(query *GlobalFoodPricesQuery) ([
 		return prices, err
 	}
 
-	lastUpdate := time.Unix(meta[0].LastUpdated, 0)
-	if len(meta) <= 0 || time.Since(lastUpdate) > (time.Hour*8765) {
+	if len(meta) <= 0 || time.Since(time.Unix(meta[0].LastUpdated, 0)) > (time.Hour*8765) {
 		log.Warnf("failed to find metadata for global food prices. grabbing latest data from source...")
 		return hd.GetLatestGlobalFoodPricesData()
 	}
 
-	fmt.Println(query)
 	if query == nil || (query.BeforeYear == -1 && query.AfterYear == -1) {
 		return hd.dbh.GetFoodPricesByMetaID(meta[0].ID) // get all prices
 	}

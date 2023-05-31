@@ -73,5 +73,12 @@ Future<void> main() async {
     responsive: true,
   );
 
+  DivElement globalPricesContainer =
+      querySelector('#globalPrices') as DivElement;
+  while (globalPricesContainer.children.isNotEmpty) {
+    globalPricesContainer.children
+        .removeAt(globalPricesContainer.children.length - 1);
+  }
+
   newPlot('globalPrices', data, layout, config);
 }
