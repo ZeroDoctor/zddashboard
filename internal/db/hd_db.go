@@ -4,8 +4,8 @@ import (
 	"github.com/zerodoctor/zddashboard/internal/service/api/model"
 )
 
-func (db *DB) GetFoodPricesWhere(clause string, values ...interface{}) ([]model.GlobalFoodPrice, error) {
-	prices := []model.GlobalFoodPrice{}
+func (db *DB) GetFoodPricesWhere(clause string, values ...interface{}) ([]model.CountryFoodPrice, error) {
+	prices := []model.CountryFoodPrice{}
 
 	query := `SELECT * FROM global_food_prices WHERE ` + clause + `
 		ORDER BY COALESCE(country_name, region_name, city_name, food_name, month, year)`
@@ -15,8 +15,8 @@ func (db *DB) GetFoodPricesWhere(clause string, values ...interface{}) ([]model.
 	return prices, err
 }
 
-func (db *DB) GetFoodPricesByMetaID(metadata int) ([]model.GlobalFoodPrice, error) {
-	prices := []model.GlobalFoodPrice{}
+func (db *DB) GetFoodPricesByMetaID(metadata int) ([]model.CountryFoodPrice, error) {
+	prices := []model.CountryFoodPrice{}
 	query := `SELECT * FROM global_food_prices WHERE metadata_id = $1
 		ORDER BY COALESCE(country_name, region_name, city_name, food_name, month, year)`
 
@@ -25,7 +25,7 @@ func (db *DB) GetFoodPricesByMetaID(metadata int) ([]model.GlobalFoodPrice, erro
 	return prices, err
 }
 
-func (db *DB) SaveGlobalFoodPrices(globalFoodPrices []model.GlobalFoodPrice) error {
+func (db *DB) SaveGlobalFoodPrices(globalFoodPrices []model.CountryFoodPrice) error {
 	insert := `INSERT INTO global_food_prices (
 		country_id, country_name, region_id, region_name,
 		city_id, city_name, food_id, food_name,

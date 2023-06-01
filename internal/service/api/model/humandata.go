@@ -2,7 +2,7 @@ package model
 
 // from: https://data.humdata.org/
 
-type GlobalFoodPrice struct {
+type CountryFoodPrice struct {
 	GFPID           int     `db:"gfp_id" json:"gfp_id,omitempty"`
 	CountryID       float32 `csv:"adm0_id" db:"country_id" json:"country_id,omitempty"`
 	CountryName     string  `csv:"adm0_name" db:"country_name" json:"country_name,omitempty"`

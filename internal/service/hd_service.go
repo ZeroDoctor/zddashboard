@@ -29,8 +29,8 @@ type GlobalFoodPricesQuery struct {
 	AfterYear  int `in:"query=after_year;default=-1"`
 }
 
-func (hd *HumanDataService) GetGlobalFoodPrices(query *GlobalFoodPricesQuery) ([]model.GlobalFoodPrice, error) {
-	var prices []model.GlobalFoodPrice
+func (hd *HumanDataService) GetGlobalFoodPrices(query *GlobalFoodPricesQuery) ([]model.CountryFoodPrice, error) {
+	var prices []model.CountryFoodPrice
 
 	meta, err := hd.dbh.GetScrapMetadataByName(string(model.FOOD_PRICES))
 	if err != nil {
@@ -61,7 +61,7 @@ func (hd *HumanDataService) GetGlobalFoodPrices(query *GlobalFoodPricesQuery) ([
 	return hd.dbh.GetFoodPricesWhere(db.JoinClauses(clauses, false), values...)
 }
 
-func (hd *HumanDataService) GetLatestGlobalFoodPricesData() ([]model.GlobalFoodPrice, error) {
+func (hd *HumanDataService) GetLatestGlobalFoodPricesData() ([]model.CountryFoodPrice, error) {
 	prices, err := api.GetGlobalFoodPricesCSV(hd.a)
 	if err != nil {
 		return nil, err

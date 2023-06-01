@@ -8,8 +8,8 @@ import (
 	"github.com/zerodoctor/zddashboard/internal/service/api/model"
 )
 
-func GetGlobalFoodPricesCSV(api *API) ([]model.GlobalFoodPrice, error) {
-	globalFoodPrices := []model.GlobalFoodPrice{}
+func GetGlobalFoodPricesCSV(api *API) ([]model.CountryFoodPrice, error) {
+	globalFoodPrices := []model.CountryFoodPrice{}
 
 	resp, err := api.Call(http.MethodGet, os.Getenv("GLOBAL_FOOD_PRICES_URL"), nil, nil)
 	if err != nil {
