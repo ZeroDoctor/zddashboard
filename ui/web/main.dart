@@ -1,8 +1,7 @@
 import 'dart:html';
-import 'dart:convert';
 
-import 'lib/plotly/dart_theme.dart';
-import 'lib/plotly/plotly.dart';
+import 'vendor/plotly/dart_theme.dart';
+import 'vendor/plotly/plotly.dart';
 import 'src/components/navbar.dart';
 import 'src/form_data/global_food_prices.dart';
 
