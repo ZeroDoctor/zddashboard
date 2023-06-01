@@ -21,36 +21,18 @@ Navbar createNavbar() {
   );
 }
 
-Future<List<Data>> fetchGlobalFoodPricesData() async {
+Future<List<Data>> fetchFoodPricesData() async {
   List<CountryFoodPrice> countries = await fetchGlobalFoodPrices();
-  Map<String, List<CountryFoodPrice>> byCountry =
-      averageGlobalFoodPricesByCountry(countries);
 
-  List<Data> data = [];
-  List<CountryFoodPrice> senegal = byCountry['Chad']!;
+  // Map<String, List<CountryFoodPrice>> byCountry =
+  //     averageGlobalFoodPricesByCountry(countries);
 
-  Map<String, List<CountryFoodPrice>> byFood = {};
-  for (var d in senegal) {
-    if (byFood[d.food] == null) byFood[d.food] = [];
-    byFood[d.food]?.add(d);
-  }
-  window.console.log(byFood);
+  // List<CountryFoodPrice> chad = byCountry['Chad']!;
 
-  byFood.forEach((name, value) {
-    value.sort((a, b) {
-      var aDate = DateTime.parse(a.date);
-      var bDate = DateTime.parse(b.date);
-      return aDate.compareTo(bDate);
-    });
+  countries.first.name = 'Global';
+  List<CountryFoodPrice> global = averageFoodPrices(countries);
 
-    data.add(Data(
-      x: value.map((element) => element.date).toList(),
-      y: value.map((element) => element.price).toList(),
-      name: name,
-    ));
-  });
-
-  return data;
+  return formatPricesToData(global);
 }
 
 Future<void> main() async {
@@ -60,7 +42,7 @@ Future<void> main() async {
   DivElement navbarContainer = querySelector('#navbar') as DivElement;
   navbarContainer.children.add(responses[0]);
 
-  List<Data> data = await fetchGlobalFoodPricesData();
+  List<Data> data = await fetchFoodPricesData();
 
   Layout layout = Layout(
     title: 'Chad',
