@@ -44,7 +44,7 @@ Future<void> main() async {
   List<Data> data = await fetchFoodPricesData();
 
   Layout layout = Layout(
-    title: 'Chad',
+    title: 'Global Food Prices',
     template: darkTheme,
     autosize: true,
   );

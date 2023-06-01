@@ -24,7 +24,6 @@ Future<List<CountryFoodPrice>> fetchGlobalFoodPrices() async {
   }
 
   Map<String, dynamic> resp = json.decode(req.response);
-  List<Map<String, dynamic>> model = [{}];
 
   List<dynamic> data = resp['data'] as List<dynamic>;
   return data.map((row) {
@@ -50,11 +49,19 @@ List<CountryFoodPrice> averageFoodPrices(List<CountryFoodPrice> target) {
   Map<String, List<num>> sumMap = {};
   for (var country in target) {
     String key = '${country.food}|${country.date}';
-    if (sumMap[key] == null) sumMap[key] = [];
+    if (sumMap[key] == null) sumMap[key] = [0, 0];
 
-    num sum = (sumMap[country]?[0] ?? 0) + country.price;
-    sumMap[country.food]?[0] += sum;
-    sumMap[country.food]?[1] += 1;
+    if (country.food.contains('Onions (shallot, medium)') &&
+        country.date.contains('2020-10-01')) {
+      window.console.log('---------');
+      window.console.log(
+        '${country.name} ${country.food} ${country.date} ${country.price}',
+      );
+      window.console.log((sumMap[key]![0]));
+    }
+
+    sumMap[key]?[0] += country.price;
+    sumMap[key]?[1] += 1;
   }
 
   List<CountryFoodPrice> country = [];
@@ -87,8 +94,7 @@ Map<String, List<CountryFoodPrice>> averageFoodPricesByCountry(
 
       if (sumMap[key] == null) sumMap[key] = [0, 0];
 
-      num sum = (sumMap[key]?[0] ?? 0) + data.price;
-      sumMap[key]?[0] = sum;
+      sumMap[key]?[0] = data.price;
       sumMap[key]?[1] += 1;
     }
   });
