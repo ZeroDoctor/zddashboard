@@ -1,7 +1,7 @@
 import 'dart:html';
 import 'dart:convert';
 
-import '../../vendor/plotly/plotly.dart';
+import '../../extern/plotly/plotly.dart';
 
 class CountryFoodPrice {
   String name;
