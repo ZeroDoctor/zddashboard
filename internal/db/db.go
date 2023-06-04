@@ -59,6 +59,25 @@ func (db *DB) ExecSchemaFile(fileName string) error {
 	return ErrFileNotFound
 }
 
+func BatchNamedExec[T any](db *DB, insert string, batch []T) error {
+	size := 999
+	if len(batch) < size {
+		size = len(batch)
+	}
+
+	for current := 0; current < len(batch); current += size {
+		if current+size > len(batch) {
+			size -= ((current + size) - len(batch))
+		}
+
+		if _, err := db.NamedExec(insert, batch[current:current+size]); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func JoinClauses(clauses []string, exclusive bool) string {
 	for i := range clauses {
 		clauses[i] = fmt.Sprintf("%s $%d", clauses[i], i+1)

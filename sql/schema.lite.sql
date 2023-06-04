@@ -1,15 +1,23 @@
 
-CREATE TABLE IF NOT EXISTS scrap_metadata (
-    sm_id        INTEGER PRIMARY KEY AUTOINCREMENT,
-    sm_url       TEXT,
-	data_name    TEXT NOT NULL,
-    last_updated INTEGER NOT NULL,
+CREATE TABLE IF NOT EXISTS api_metadata (
+    id      INTEGER PRIMARY KEY AUTOINCREMENT,
+    url     TEXT,
+	name    TEXT NOT NULL,
+	call_at INTEGER NOT NULL,
 	
-	UNIQUE(sm_url, data_name)
+	UNIQUE(name)
+);
+
+CREATE TABLE IF NOT EXISTS api_call_count (
+	id      INTEGER PRIMARY KEY AUTOINCREMENT,
+	api_id  INTEGER,
+	call_at INTEGER NOT NULL,
+	
+	FOREIGN KEY api_id REFERENCES api_metadata(id)
 );
 
 CREATE TABLE IF NOT EXISTS global_food_prices (
-    gfp_id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    id               INTEGER PRIMARY KEY AUTOINCREMENT,
     country_id       NUMERIC(10, 2),
     country_name     TEXT,
     region_id        INTEGER,
@@ -30,6 +38,16 @@ CREATE TABLE IF NOT EXISTS global_food_prices (
 	commodity_source NUMERIC(10, 2),
 	metadata_id      INTEGER,
 
-	FOREIGN KEY(metadata_id) REFERENCES scrap_metadata(sm_id),
+	FOREIGN KEY(metadata_id) REFERENCES api_metadata(id),
 	UNIQUE(country_id, region_id, city_id, currency_id, month, year)
+);
+
+CREATE TABLE IF NOT EXISTS exchange_rates_based_usd (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+	code        TEXT NOT NULL,
+	rate        REAL NOT NULL,
+	metadata_id INTEGER,
+	
+	FOREIGN KEY(metadata_id) REFERENCES api_metadata(id),
+	UNIQUE(code)
 );

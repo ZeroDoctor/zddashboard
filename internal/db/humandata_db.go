@@ -15,7 +15,7 @@ func (db *DB) GetFoodPricesWhere(clause string, values ...interface{}) ([]model.
 	return prices, err
 }
 
-func (db *DB) GetFoodPricesByMetaID(metadata int) ([]model.CountryFoodPrice, error) {
+func (db *DB) GetFoodPricesByMetaID(metadata int64) ([]model.CountryFoodPrice, error) {
 	prices := []model.CountryFoodPrice{}
 	query := `SELECT * FROM global_food_prices WHERE metadata_id = $1
 		ORDER BY COALESCE(country_name, region_name, city_name, food_name, month, year)`
@@ -61,63 +61,4 @@ func (db *DB) SaveGlobalFoodPrices(globalFoodPrices []model.CountryFoodPrice) er
 	;`
 
 	return BatchNamedExec(db, insert, globalFoodPrices)
-}
-
-func (db *DB) GetScrapMetadataByName(name string) ([]model.ScrapMetadata, error) {
-	metadata := []model.ScrapMetadata{}
-	query := `SELECT * FROM scrap_metadata WHERE data_name = $1`
-
-	if err := db.Select(&metadata, query, name); err != nil {
-		return metadata, err
-	}
-
-	return metadata, nil
-}
-
-func (db *DB) SaveScrapMetadata(metadata model.ScrapMetadata) (int64, error) {
-	insert := `INSERT INTO scrap_metadata (
-		sm_url, data_name, last_updated
-	) VALUES (
-		:sm_url, :data_name, :last_updated
-	) ON CONFLICT (sm_url, data_name) DO UPDATE SET
-		sm_url    = excluded.sm_url, 
-		data_name    = excluded.data_name, 
-		last_updated = excluded.last_updated
-	RETURNING sm_id
-	;`
-
-	rows, err := db.NamedQuery(insert, metadata)
-	if err != nil {
-		return -1, err
-	}
-
-	defer rows.Close()
-
-	var id int64
-	for rows.Next() {
-		if err := rows.Scan(&id); err != nil {
-			return -1, err
-		}
-	}
-
-	return id, nil
-}
-
-func BatchNamedExec[T any](db *DB, insert string, batch []T) error {
-	size := 999
-	if len(batch) < size {
-		size = len(batch)
-	}
-
-	for current := 0; current < len(batch); current += size {
-		if current+size > len(batch) {
-			size -= ((current + size) - len(batch))
-		}
-
-		if _, err := db.NamedExec(insert, batch[current:current+size]); err != nil {
-			return err
-		}
-	}
-
-	return nil
 }

@@ -20,7 +20,7 @@ type Controller struct {
 }
 
 func NewController(dbh *db.DB) *Controller {
-	api := NewHumanDataAPI(dbh)
+	api := NewHumanDataController(dbh)
 
 	router := gin.Default()
 
@@ -82,4 +82,11 @@ func BindInput(inputStruct interface{}) gin.HandlerFunc {
 		c.Request = c.Request.WithContext(ctx)
 		c.Next()
 	}
+}
+
+func HandleError(ctx *gin.Context, code int, err error) {
+	ctx.JSON(code, gin.H{
+		"success": false,
+		"error":   err.Error(),
+	})
 }

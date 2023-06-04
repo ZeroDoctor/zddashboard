@@ -3,6 +3,7 @@ package controller
 import (
 	"errors"
 	"net/http"
+	"os"
 
 	"github.com/ggicci/httpin"
 	"github.com/gin-gonic/gin"
@@ -11,23 +12,23 @@ import (
 	"github.com/zerodoctor/zddashboard/internal/service/api"
 )
 
-type HumanDataAPI struct {
+type HumanDataController struct {
 	dbh       *db.DB
 	hdservice *service.HumanDataService
 	*api.API
 }
 
-func NewHumanDataAPI(dbh *db.DB) *HumanDataAPI {
-	a := api.NewAPI("", nil)
+func NewHumanDataController(dbh *db.DB) *HumanDataController {
+	a := api.NewAPI(os.Getenv("HUMAN_DATA_URL"), nil)
 
-	return &HumanDataAPI{
+	return &HumanDataController{
 		dbh:       dbh,
 		hdservice: service.NewHumanDataService(a, dbh),
 		API:       a,
 	}
 }
 
-func (hda *HumanDataAPI) GetGlobalFoodPrices(ctx *gin.Context) {
+func (hda *HumanDataController) GetGlobalFoodPrices(ctx *gin.Context) {
 	input, ok := ctx.Request.Context().Value(httpin.Input).(*service.GlobalFoodPricesQuery)
 	if !ok {
 		err := errors.New("failed to parses query")
@@ -48,12 +49,5 @@ func (hda *HumanDataAPI) GetGlobalFoodPrices(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data":    prices,
-	})
-}
-
-func HandleError(ctx *gin.Context, code int, err error) {
-	ctx.JSON(code, gin.H{
-		"success": false,
-		"error":   err.Error(),
 	})
 }

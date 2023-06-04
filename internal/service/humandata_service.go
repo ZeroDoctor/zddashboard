@@ -32,12 +32,12 @@ type GlobalFoodPricesQuery struct {
 func (hd *HumanDataService) GetGlobalFoodPrices(query *GlobalFoodPricesQuery) ([]model.CountryFoodPrice, error) {
 	var prices []model.CountryFoodPrice
 
-	meta, err := hd.dbh.GetScrapMetadataByName(string(model.FOOD_PRICES))
+	meta, err := hd.dbh.GetAPIMetadataByName(string(model.FOOD_PRICES))
 	if err != nil {
 		return prices, err
 	}
 
-	if len(meta) <= 0 || time.Since(time.Unix(meta[0].LastUpdated, 0)) > (time.Hour*8765) {
+	if len(meta) <= 0 || time.Since(meta[0].CallAt) > (time.Hour*8765) {
 		log.Warnf("failed to find metadata for global food prices. grabbing latest data from source...")
 		return hd.GetLatestGlobalFoodPricesData()
 	}
@@ -67,19 +67,23 @@ func (hd *HumanDataService) GetLatestGlobalFoodPricesData() ([]model.CountryFood
 		return nil, err
 	}
 
-	meta := model.ScrapMetadata{
-		URL:         os.Getenv("GLOBAL_FOOD_PRICES_URL"),
-		DataName:    string(model.FOOD_PRICES),
-		LastUpdated: time.Now().Unix(),
+	meta := model.APIMetadata{
+		URL:    os.Getenv("GLOBAL_FOOD_PRICES_URL"),
+		Name:   model.FOOD_PRICES,
+		CallAt: time.Now(),
 	}
 
-	metaID, err := hd.dbh.SaveScrapMetadata(meta)
+	meta.ID, err = hd.dbh.SaveAPIMetadata(meta)
 	if err != nil {
 		return prices, err
 	}
 
 	for i := range prices {
-		prices[i].MetaDataID = metaID
+		prices[i].MetaDataID = meta.ID
+	}
+
+	if err := hd.dbh.RecordAPICall(meta.ID); err != nil {
+		log.Errorf("failed to record api call [api=%+v] [error=%s]", meta, err.Error())
 	}
 
 	if err := hd.dbh.SaveGlobalFoodPrices(prices); err != nil {
