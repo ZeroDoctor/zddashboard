@@ -28,6 +28,14 @@ func NewHumanDataController(dbh *db.DB) *HumanDataController {
 	}
 }
 
+// GetGlobalFoodPrices godoc
+//
+//	@Summary	fetches food prices from random countries
+//	@Param		before_year	query	string	false	"get all prices before timestamp format 2006-01-02T15:04:05Z07:00"
+//	@Param		after_year	query	string	false	"get all prices after timestamp format 2006-01-02T15:04:05Z07:00"
+//	@Produce	json
+//	@Router		/globalfoodprices [get]
+//	@Success	200	{array}	model.CountryFoodPrice
 func (hda *HumanDataController) GetGlobalFoodPrices(ctx *gin.Context) {
 	input, ok := ctx.Request.Context().Value(httpin.Input).(*service.GlobalFoodPricesQuery)
 	if !ok {

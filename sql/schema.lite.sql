@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS api_call_count (
 	api_id  INTEGER,
 	call_at INTEGER NOT NULL,
 	
-	FOREIGN KEY api_id REFERENCES api_metadata(id)
+	FOREIGN KEY(api_id) REFERENCES api_metadata(id)
 );
 
 CREATE TABLE IF NOT EXISTS global_food_prices (

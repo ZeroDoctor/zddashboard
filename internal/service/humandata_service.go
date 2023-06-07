@@ -25,8 +25,8 @@ func NewHumanDataService(a *api.API, dbh *db.DB) *HumanDataService {
 }
 
 type GlobalFoodPricesQuery struct {
-	BeforeYear int `in:"query=before_year;default=-1"`
-	AfterYear  int `in:"query=after_year;default=-1"`
+	BeforeYear string `in:"query=before_year"`
+	AfterYear  string `in:"query=after_year"`
 }
 
 func (hd *HumanDataService) GetGlobalFoodPrices(query *GlobalFoodPricesQuery) ([]model.CountryFoodPrice, error) {
@@ -42,20 +42,28 @@ func (hd *HumanDataService) GetGlobalFoodPrices(query *GlobalFoodPricesQuery) ([
 		return hd.GetLatestGlobalFoodPricesData()
 	}
 
-	if query == nil || (query.BeforeYear == -1 && query.AfterYear == -1) {
+	if query == nil || (query.BeforeYear == "" && query.AfterYear == "") {
 		return hd.dbh.GetFoodPricesByMetaID(meta[0].ID) // get all prices
 	}
 
 	var clauses []string
 	var values []interface{}
-	if query.BeforeYear != -1 {
+	if query.BeforeYear != "" {
 		clauses = append(clauses, "year < ")
-		values = append(values, query.BeforeYear)
+		value, err := time.Parse(time.RFC3339, query.BeforeYear)
+		if err != nil {
+			return nil, err
+		}
+		values = append(values, value)
 	}
 
-	if query.AfterYear != -1 {
+	if query.AfterYear != "" {
 		clauses = append(clauses, "year > ")
-		values = append(values, query.AfterYear)
+		value, err := time.Parse(time.RFC3339, query.AfterYear)
+		if err != nil {
+			return nil, err
+		}
+		values = append(values, value)
 	}
 
 	return hd.dbh.GetFoodPricesWhere(db.JoinClauses(clauses, false), values...)

@@ -7,10 +7,16 @@ import (
 
 	"github.com/ggicci/httpin"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	_ "github.com/zerodoctor/zddashboard/docs"
 	"github.com/zerodoctor/zddashboard/internal/db"
 	"github.com/zerodoctor/zddashboard/internal/logger"
 	"github.com/zerodoctor/zddashboard/internal/service"
 )
+
+// gin-swagger middleware
+// swagger embed files
 
 var log = logger.Logger()
 
@@ -19,6 +25,16 @@ type Controller struct {
 	*gin.Engine
 }
 
+//	@title		Dashboard API
+//	@version	0.1
+
+//	@host		localhost:3000
+//	@BasePath	/api
+
+//	@securityDefinitions.basic	BasicAuth
+
+//	@externalDocs.description	OpenAPI
+//	@externalDocs.url			https://swagger.io/resources/open-api/
 func NewController(dbh *db.DB) *Controller {
 	api := NewHumanDataController(dbh)
 
@@ -38,7 +54,12 @@ func NewController(dbh *db.DB) *Controller {
 
 	{
 		apiRouter := router.Group("/api")
-		apiRouter.GET("/globalfoodprices", BindInput(service.GlobalFoodPricesQuery{}), api.GetGlobalFoodPrices)
+		apiRouter.GET("/globalfoodprices", BindQueryInput(service.GlobalFoodPricesQuery{}), api.GetGlobalFoodPrices)
+	}
+
+	{
+		// documentation for golang swagger-ui: https://github.com/swaggo/swag
+		router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
 
 	return &Controller{
@@ -59,8 +80,8 @@ func PagePage(ctx *gin.Context) {
 	ctx.HTML(http.StatusOK, "pages/index.html", nil)
 }
 
-// BindInput instances an httpin engine for an input struct as a gin middleware.
-func BindInput(inputStruct interface{}) gin.HandlerFunc {
+// BindQueryInput instances an httpin engine for an input struct as a gin middleware.
+func BindQueryInput(inputStruct interface{}) gin.HandlerFunc {
 	engine, err := httpin.New(inputStruct)
 	if err != nil {
 		panic(err)

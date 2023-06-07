@@ -11,3 +11,8 @@ zddashboard
 
 # ide
 .vscode/
+
+# generated files
+docs/docs.go
+docs/swagger.json
+docs/swagger.yaml

@@ -62,5 +62,9 @@ func (oe *OpenExchangeService) GetLatestExchangeRates() ([]model.ExchangeRatesBa
 }
 
 func (oe *OpenExchangeService) ConvertToRate(code string, price float32) float32 {
+	if _, ok := oe.usdRatesMap[code]; !ok {
+		log.Warnf("failed to find exchange rate for [code=%s]", code)
+	}
+
 	return oe.usdRatesMap[code] * price
 }

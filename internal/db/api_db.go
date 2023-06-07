@@ -47,7 +47,7 @@ func (db *DB) SaveAPIMetadata(metadata model.APIMetadata) (int64, error) {
 }
 
 func (db *DB) GetAPICalls(name, url string) ([]model.APICallCount, error) {
-	query := `SELECT * FROM api_hit_count WHERE api_id = (
+	query := `SELECT * FROM api_call_count WHERE api_id = (
 		SELECT id FROM api_metadata WHERE name = $1 AND url = $2;
 	)
 	ORDER BY call_at DESC
@@ -60,7 +60,7 @@ func (db *DB) GetAPICalls(name, url string) ([]model.APICallCount, error) {
 }
 
 func (db *DB) RecordAPICall(apiID int64) error {
-	insert := `INSERT INTO api_hit_count (
+	insert := `INSERT INTO api_call_count (
 		api_id, call_at 
 	) VALUES (
 		:api_id, :call_at 
