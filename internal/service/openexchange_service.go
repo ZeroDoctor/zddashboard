@@ -9,11 +9,13 @@ import (
 	"github.com/zerodoctor/zddashboard/internal/service/api/model"
 )
 
+type ExchangeRateCode string
+
 type OpenExchangeService struct {
 	a   *api.API
 	dbh *db.DB
 
-	usdRatesMap map[string]float32
+	usdRatesMap map[ExchangeRateCode]float32
 }
 
 func NewOpenExchangeService(a *api.API, dbh *db.DB) *OpenExchangeService {
@@ -23,6 +25,30 @@ func NewOpenExchangeService(a *api.API, dbh *db.DB) *OpenExchangeService {
 		}),
 		dbh: dbh,
 	}
+}
+
+func (oe *OpenExchangeService) GetExchangeRates() ([]model.ExchangeRatesBasedUSD, error) {
+	var err error
+	var rates []model.ExchangeRatesBasedUSD
+
+	meta, err := oe.dbh.GetAPIMetadataByName(model.EXCHANGE_RATE)
+	if err != nil {
+		return rates, err
+	}
+
+	if len(meta) <= 0 || time.Since(time.Time(meta[0].CallAt)) > (time.Hour*time.Duration(model.YEAR_IN_HOURS)) {
+		log.Warnf("failed to find metadata for %s. grabbing latest data from source...", model.EXCHANGE_RATE)
+		oe.PopulateRateMap(meta[0].ID, rates)
+		return oe.GetLatestExchangeRates()
+
+	}
+	rates, err = oe.dbh.GetAllExchangeRate()
+	if err != nil {
+		return rates, err
+	}
+	oe.PopulateRateMap(meta[0].ID, rates)
+
+	return rates, err
 }
 
 func (oe *OpenExchangeService) GetLatestExchangeRates() ([]model.ExchangeRatesBasedUSD, error) {
@@ -37,7 +63,7 @@ func (oe *OpenExchangeService) GetLatestExchangeRates() ([]model.ExchangeRatesBa
 	meta := model.APIMetadata{
 		URL:    os.Getenv("OPEN_EXCHANGE_URL"),
 		Name:   model.EXCHANGE_RATE,
-		CallAt: time.Now(),
+		CallAt: model.Time(time.Now()),
 	}
 
 	meta.ID, err = oe.dbh.SaveAPIMetadata(meta)
@@ -45,10 +71,7 @@ func (oe *OpenExchangeService) GetLatestExchangeRates() ([]model.ExchangeRatesBa
 		return rates, err
 	}
 
-	for i := range rates {
-		rates[i].MetaDataID = meta.ID
-		oe.usdRatesMap[rates[i].Code] = rates[i].Rate
-	}
+	oe.PopulateRateMap(meta.ID, rates)
 
 	if err := oe.dbh.RecordAPICall(meta.ID); err != nil {
 		log.Errorf("failed to record api call [api=%+v] [error=%s]", meta, err.Error())
@@ -61,10 +84,17 @@ func (oe *OpenExchangeService) GetLatestExchangeRates() ([]model.ExchangeRatesBa
 	return rates, nil
 }
 
-func (oe *OpenExchangeService) ConvertToRate(code string, price float32) float32 {
+func (oe *OpenExchangeService) ConvertWithRate(code ExchangeRateCode, price float32) float32 {
 	if _, ok := oe.usdRatesMap[code]; !ok {
 		log.Warnf("failed to find exchange rate for [code=%s]", code)
 	}
 
 	return oe.usdRatesMap[code] * price
+}
+
+func (oe *OpenExchangeService) PopulateRateMap(metaID int64, rates []model.ExchangeRatesBasedUSD) {
+	for i := range rates {
+		rates[i].MetaDataID = metaID
+		oe.usdRatesMap[ExchangeRateCode(rates[i].Code)] = rates[i].Rate
+	}
 }

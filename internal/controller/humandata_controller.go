@@ -15,15 +15,17 @@ import (
 type HumanDataController struct {
 	dbh       *db.DB
 	hdservice *service.HumanDataService
+	oeservice *service.OpenExchangeService
 	*api.API
 }
 
 func NewHumanDataController(dbh *db.DB) *HumanDataController {
 	a := api.NewAPI(os.Getenv("HUMAN_DATA_URL"), nil)
-
+	oeservice := service.NewOpenExchangeService(a, dbh)
 	return &HumanDataController{
 		dbh:       dbh,
-		hdservice: service.NewHumanDataService(a, dbh),
+		oeservice: oeservice,
+		hdservice: service.NewHumanDataService(a, dbh, oeservice),
 		API:       a,
 	}
 }

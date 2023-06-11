@@ -18,6 +18,14 @@ func (db *DB) GetExchangeRate(code string) (float32, error) {
 	return rate, nil
 }
 
+func (db *DB) GetAllExchangeRate() ([]model.ExchangeRatesBasedUSD, error) {
+	rates := []model.ExchangeRatesBasedUSD{}
+
+	query := "SELECT * FROM exchange_rates_based_usd"
+	err := db.Select(&rates, query)
+	return rates, err
+}
+
 func (db *DB) SaveExchangeRates(rates []model.ExchangeRatesBasedUSD) error {
 	insert := `INSERT INTO exchange_rates_based_usd (
 		code, rate

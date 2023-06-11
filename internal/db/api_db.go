@@ -6,7 +6,7 @@ import (
 	"github.com/zerodoctor/zddashboard/internal/service/api/model"
 )
 
-func (db *DB) GetAPIMetadataByName(name string) ([]model.APIMetadata, error) {
+func (db *DB) GetAPIMetadataByName(name model.DATA_NAME) ([]model.APIMetadata, error) {
 	metadata := []model.APIMetadata{}
 	query := `SELECT * FROM api_metadata WHERE name = $1`
 
@@ -68,7 +68,7 @@ func (db *DB) RecordAPICall(apiID int64) error {
 
 	call := model.APICallCount{
 		APIID:  apiID,
-		CallAt: time.Now(),
+		CallAt: model.Time(time.Now()),
 	}
 
 	_, err := db.NamedExec(insert, call)

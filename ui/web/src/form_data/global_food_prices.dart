@@ -51,15 +51,6 @@ List<CountryFoodPrice> averageFoodPrices(List<CountryFoodPrice> target) {
     String key = '${country.food}|${country.date}';
     if (sumMap[key] == null) sumMap[key] = [0, 0];
 
-    if (country.food.contains('Onions (shallot, medium)') &&
-        country.date.contains('2020-10-01')) {
-      window.console.log('---------');
-      window.console.log(
-        '${country.name} ${country.food} ${country.date} ${country.price}',
-      );
-      window.console.log((sumMap[key]![0]));
-    }
-
     sumMap[key]?[0] += country.price;
     sumMap[key]?[1] += 1;
   }

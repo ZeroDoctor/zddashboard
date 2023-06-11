@@ -13,32 +13,35 @@ import (
 var log = logger.Logger()
 
 type HumanDataService struct {
-	a   *api.API
-	dbh *db.DB
+	a         *api.API
+	dbh       *db.DB
+	oeservice *OpenExchangeService
 }
 
-func NewHumanDataService(a *api.API, dbh *db.DB) *HumanDataService {
+func NewHumanDataService(a *api.API, dbh *db.DB, oe *OpenExchangeService) *HumanDataService {
 	return &HumanDataService{
-		a:   a,
-		dbh: dbh,
+		a:         a,
+		dbh:       dbh,
+		oeservice: oe,
 	}
 }
 
 type GlobalFoodPricesQuery struct {
-	BeforeYear string `in:"query=before_year"`
-	AfterYear  string `in:"query=after_year"`
+	BeforeYear      string `in:"query=before_year"`
+	AfterYear       string `in:"query=after_year"`
+	ConvertCurrency string `in:"query=convert"`
 }
 
 func (hd *HumanDataService) GetGlobalFoodPrices(query *GlobalFoodPricesQuery) ([]model.CountryFoodPrice, error) {
 	var prices []model.CountryFoodPrice
 
-	meta, err := hd.dbh.GetAPIMetadataByName(string(model.FOOD_PRICES))
+	meta, err := hd.dbh.GetAPIMetadataByName(model.FOOD_PRICES)
 	if err != nil {
 		return prices, err
 	}
 
-	if len(meta) <= 0 || time.Since(meta[0].CallAt) > (time.Hour*8765) {
-		log.Warnf("failed to find metadata for global food prices. grabbing latest data from source...")
+	if len(meta) <= 0 || time.Since(time.Time(meta[0].CallAt)) > (time.Hour*time.Duration(model.YEAR_IN_HOURS)) {
+		log.Warnf("failed to find metadata for %s. grabbing latest data from source...", model.FOOD_PRICES)
 		return hd.GetLatestGlobalFoodPricesData()
 	}
 
@@ -66,7 +69,16 @@ func (hd *HumanDataService) GetGlobalFoodPrices(query *GlobalFoodPricesQuery) ([
 		values = append(values, value)
 	}
 
-	return hd.dbh.GetFoodPricesWhere(db.JoinClauses(clauses, false), values...)
+	prices, err = hd.dbh.GetFoodPricesWhere(db.JoinClauses(clauses, false), values...)
+	if err != nil {
+		return prices, err
+	}
+
+	if query.ConvertCurrency != "" {
+		prices = hd.ConvertPricesToCurrency(prices, ExchangeRateCode(query.ConvertCurrency))
+	}
+
+	return prices, nil
 }
 
 func (hd *HumanDataService) GetLatestGlobalFoodPricesData() ([]model.CountryFoodPrice, error) {
@@ -78,7 +90,7 @@ func (hd *HumanDataService) GetLatestGlobalFoodPricesData() ([]model.CountryFood
 	meta := model.APIMetadata{
 		URL:    os.Getenv("GLOBAL_FOOD_PRICES_URL"),
 		Name:   model.FOOD_PRICES,
-		CallAt: time.Now(),
+		CallAt: model.Time(time.Now()),
 	}
 
 	meta.ID, err = hd.dbh.SaveAPIMetadata(meta)
@@ -99,4 +111,12 @@ func (hd *HumanDataService) GetLatestGlobalFoodPricesData() ([]model.CountryFood
 	}
 
 	return prices, nil
+}
+
+func (hd *HumanDataService) ConvertPricesToCurrency(prices []model.CountryFoodPrice, code ExchangeRateCode) []model.CountryFoodPrice {
+	for i := range prices {
+		prices[i].Price = hd.oeservice.ConvertWithRate(code, prices[i].Price)
+	}
+
+	return prices
 }

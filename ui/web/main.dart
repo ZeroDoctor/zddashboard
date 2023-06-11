@@ -23,11 +23,6 @@ Navbar createNavbar() {
 Future<List<Data>> fetchFoodPricesData() async {
   List<CountryFoodPrice> countries = await fetchGlobalFoodPrices();
 
-  // Map<String, List<CountryFoodPrice>> byCountry =
-  //     averageGlobalFoodPricesByCountry(countries);
-
-  // List<CountryFoodPrice> chad = byCountry['Chad']!;
-
   countries.first.name = 'Global';
   List<CountryFoodPrice> global = averageFoodPrices(countries);
 
