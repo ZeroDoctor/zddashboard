@@ -26,14 +26,15 @@ func (db *DB) GetAllExchangeRate() ([]model.ExchangeRatesBasedUSD, error) {
 	return rates, err
 }
 
-func (db *DB) SaveExchangeRates(rates []model.ExchangeRatesBasedUSD) error {
+func (db *DB) SaveExchangeRates(metaID int64, rates []model.ExchangeRatesBasedUSD) error {
 	insert := `INSERT INTO exchange_rates_based_usd (
-		code, rate
+		code, rate, metadata_id
 	) VALUES (
-		:code, :rate
+		:code, :rate, :metadata_id
 	) ON CONFLICT (code) DO UPDATE SET
-		code = excluded.code,
-		rate = excluded.rate
+		code        = excluded.code,
+		rate        = excluded.rate,
+		metadata_id = excluded.metadata_id
 	;`
 
 	return BatchNamedExec(db, insert, rates)

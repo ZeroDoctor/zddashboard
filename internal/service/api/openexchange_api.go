@@ -8,12 +8,16 @@ import (
 	"github.com/zerodoctor/zddashboard/internal/service/api/model"
 )
 
-const OPEN_EXCHANGE_LATEST_PATH string = "/latest.json"
+const OE_LATEST_PATH string = "/latest.json"
 
 func GetLatestCurrencyExchangeRate(api *API) ([]model.ExchangeRatesBasedUSD, error) {
 	rates := []model.ExchangeRatesBasedUSD{}
 
-	resp, err := api.Call(http.MethodGet, OPEN_EXCHANGE_LATEST_PATH, nil, nil)
+	queries := map[string]string{
+		"base": "USD",
+	}
+
+	resp, err := api.Call(http.MethodGet, OE_LATEST_PATH, queries, nil)
 	if err != nil {
 		return rates, err
 	}

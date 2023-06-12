@@ -10,7 +10,7 @@ type LatestRates struct {
 
 type ExchangeRatesBasedUSD struct {
 	ID         int64   `db:"id" json:"id,omitempty"`
-	Code       string  `db:"name" json:"name,omitempty"`
+	Code       string  `db:"code" json:"code,omitempty"`
 	Rate       float32 `db:"rate" json:"rate,omitempty"`
 	MetaDataID int64   `db:"metadata_id" json:"metadata_id,omitempty"`
 }

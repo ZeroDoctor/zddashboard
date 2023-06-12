@@ -46,15 +46,15 @@ func (db *DB) SaveAPIMetadata(metadata model.APIMetadata) (int64, error) {
 	return id, nil
 }
 
-func (db *DB) GetAPICalls(name, url string) ([]model.APICallCount, error) {
+func (db *DB) GetAPICalls(name model.DATA_NAME) ([]model.APICallCount, error) {
 	query := `SELECT * FROM api_call_count WHERE api_id = (
-		SELECT id FROM api_metadata WHERE name = $1 AND url = $2;
+		SELECT id FROM api_metadata WHERE name = $1
 	)
 	ORDER BY call_at DESC
 	;`
 
 	call := []model.APICallCount{}
-	err := db.Select(&call, query, name, url)
+	err := db.Select(&call, query, name)
 
 	return call, err
 }

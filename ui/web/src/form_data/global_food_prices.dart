@@ -14,7 +14,7 @@ class CountryFoodPrice {
 
 Future<List<CountryFoodPrice>> fetchGlobalFoodPrices() async {
   HttpRequest req = await HttpRequest.request(
-    'http://localhost:3000/api/globalfoodprices?after_year=2012',
+    'http://localhost:3000/api/globalfoodprices?after_year=2012&convert=USD',
     method: 'GET',
   );
 

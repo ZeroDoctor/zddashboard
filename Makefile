@@ -9,6 +9,10 @@ build-swagger:
 	swag fmt
 	swag init -g ./internal/controller/*.go
 
+.PHONY: format
+format:
+	swag fmt
+
 .PHONY: ui
 ui:
 	cd ui && make build || true
@@ -19,8 +23,8 @@ serve: ui
 
 .PHONY: build 
 build: ui build-swagger
-	go build -o zddashboard ./cmd/main.go
+	go build -o zddashboard ./cmd/*.go
 	
 .PHONY: br 
 br: build
-	./zddashboard
+	./zddashboard w

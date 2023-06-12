@@ -11,6 +11,7 @@ type Time time.Time
 func (t *Time) Scan(src interface{}) error {
 	if unix, ok := src.(int64); ok {
 		*t = Time(time.Unix(unix, 0))
+		return nil
 	}
 
 	return fmt.Errorf("unexcepted format [src=%T] wanted type int64", src)
@@ -29,7 +30,7 @@ const (
 )
 
 const (
-	YEAR_IN_HOURS int = 8765
+	YEAR_DUR time.Duration = 8765 * time.Hour
 )
 
 type APIMetadata struct {

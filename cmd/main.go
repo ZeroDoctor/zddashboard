@@ -4,8 +4,6 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/zerodoctor/zddashboard/internal/controller"
-	"github.com/zerodoctor/zddashboard/internal/db"
 	"github.com/zerodoctor/zddashboard/internal/logger"
 )
 
@@ -27,17 +25,5 @@ func LoadEnv() {
 
 func main() {
 	LoadEnv()
-
-	conn, err := db.NewSqliteDB(DB_NAME)
-	if err != nil {
-		log.Fatalf("failed to connect to sqlite db [error=%s]", err.Error())
-	}
-
-	if err := conn.ExecSchemaFile(SCHEMA_FILE); err != nil {
-		log.Fatalf("failed to execute schema [file=%s] [error=%s]", SCHEMA_FILE, err.Error())
-	}
-
-	if err := controller.NewController(conn).Run(":3000"); err != nil {
-		log.Fatalf("failed to run gin controller [error=%s]", err.Error())
-	}
+	RunCmd()
 }

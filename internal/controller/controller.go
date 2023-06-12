@@ -25,18 +25,16 @@ type Controller struct {
 	*gin.Engine
 }
 
-//	@title		Dashboard API
-//	@version	0.1
-
-//	@host		localhost:3000
-//	@BasePath	/api
-
+//	@title						Dashboard API
+//	@version					0.1
+//	@host						localhost:3000
+//	@BasePath					/api
 //	@securityDefinitions.basic	BasicAuth
-
+//
 //	@externalDocs.description	OpenAPI
 //	@externalDocs.url			https://swagger.io/resources/open-api/
-func NewController(dbh *db.DB) *Controller {
-	api := NewHumanDataController(dbh)
+func NewController(dbh *db.DB, services *service.Services) *Controller {
+	hdcontroller := NewHumanDataController(dbh, services.HDservice, services.OEservice)
 
 	router := gin.Default()
 
@@ -54,7 +52,7 @@ func NewController(dbh *db.DB) *Controller {
 
 	{
 		apiRouter := router.Group("/api")
-		apiRouter.GET("/globalfoodprices", BindQueryInput(service.GlobalFoodPricesQuery{}), api.GetGlobalFoodPrices)
+		apiRouter.GET("/globalfoodprices", BindQueryInput(service.GlobalFoodPricesQuery{}), hdcontroller.GetGlobalFoodPrices)
 	}
 
 	{

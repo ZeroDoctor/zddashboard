@@ -19,12 +19,19 @@ type OpenExchangeService struct {
 }
 
 func NewOpenExchangeService(a *api.API, dbh *db.DB) *OpenExchangeService {
-	return &OpenExchangeService{
+	oes := &OpenExchangeService{
 		a: api.NewAPI(os.Getenv("OPEN_EXCHANGE_URL"), map[string]string{
 			"app_id": os.Getenv("OPEN_EXCHANGE_API_KEY"),
 		}),
-		dbh: dbh,
+		dbh:         dbh,
+		usdRatesMap: make(map[ExchangeRateCode]float32),
 	}
+
+	if _, err := oes.GetExchangeRates(); err != nil {
+		log.Errorf("failed to populate exchange rates [error=%s]", err.Error())
+	}
+
+	return oes
 }
 
 func (oe *OpenExchangeService) GetExchangeRates() ([]model.ExchangeRatesBasedUSD, error) {
@@ -36,16 +43,20 @@ func (oe *OpenExchangeService) GetExchangeRates() ([]model.ExchangeRatesBasedUSD
 		return rates, err
 	}
 
-	if len(meta) <= 0 || time.Since(time.Time(meta[0].CallAt)) > (time.Hour*time.Duration(model.YEAR_IN_HOURS)) {
+	if len(meta) <= 0 || time.Since(time.Time(meta[0].CallAt)) > model.YEAR_DUR {
 		log.Warnf("failed to find metadata for %s. grabbing latest data from source...", model.EXCHANGE_RATE)
-		oe.PopulateRateMap(meta[0].ID, rates)
 		return oe.GetLatestExchangeRates()
-
 	}
+
 	rates, err = oe.dbh.GetAllExchangeRate()
 	if err != nil {
 		return rates, err
 	}
+
+	if len(rates) <= 0 {
+		return oe.GetLatestExchangeRates()
+	}
+
 	oe.PopulateRateMap(meta[0].ID, rates)
 
 	return rates, err
@@ -61,7 +72,7 @@ func (oe *OpenExchangeService) GetLatestExchangeRates() ([]model.ExchangeRatesBa
 	}
 
 	meta := model.APIMetadata{
-		URL:    os.Getenv("OPEN_EXCHANGE_URL"),
+		URL:    os.Getenv("OPEN_EXCHANGE_URL") + api.OE_LATEST_PATH,
 		Name:   model.EXCHANGE_RATE,
 		CallAt: model.Time(time.Now()),
 	}
@@ -77,7 +88,7 @@ func (oe *OpenExchangeService) GetLatestExchangeRates() ([]model.ExchangeRatesBa
 		log.Errorf("failed to record api call [api=%+v] [error=%s]", meta, err.Error())
 	}
 
-	if err := oe.dbh.SaveExchangeRates(rates); err != nil {
+	if err := oe.dbh.SaveExchangeRates(meta.ID, rates); err != nil {
 		return rates, err
 	}
 
@@ -89,7 +100,7 @@ func (oe *OpenExchangeService) ConvertWithRate(code ExchangeRateCode, price floa
 		log.Warnf("failed to find exchange rate for [code=%s]", code)
 	}
 
-	return oe.usdRatesMap[code] * price
+	return price / oe.usdRatesMap[code]
 }
 
 func (oe *OpenExchangeService) PopulateRateMap(metaID int64, rates []model.ExchangeRatesBasedUSD) {

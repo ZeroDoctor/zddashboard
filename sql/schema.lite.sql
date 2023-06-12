@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS api_metadata (
     id      INTEGER PRIMARY KEY AUTOINCREMENT,
     url     TEXT,
 	name    TEXT NOT NULL,
-	call_at INTEGER NOT NULL,
+	call_at BIGINT NOT NULL,
 	
 	UNIQUE(name)
 );
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS api_metadata (
 CREATE TABLE IF NOT EXISTS api_call_count (
 	id      INTEGER PRIMARY KEY AUTOINCREMENT,
 	api_id  INTEGER,
-	call_at INTEGER NOT NULL,
+	call_at BIGINT NOT NULL,
 	
 	FOREIGN KEY(api_id) REFERENCES api_metadata(id)
 );
