@@ -3,7 +3,6 @@ import 'dart:html';
 import 'component.dart';
 
 class Collapse extends Component {
-
   final Element _header;
   final Element _body;
   final String _className;

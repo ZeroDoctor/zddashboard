@@ -25,8 +25,7 @@ class Carousel extends Component {
         next = 0;
       }
 
-      body +=
-          """
+      body += """
       <div id="slide$i" class="carousel-item $_itemClassName">
         ${_items[i].outerHtml}
         <div class="absolute flex justify-between transform -translate-y-1/2 left-5 right-5 top-1/2">
@@ -34,14 +33,13 @@ class Carousel extends Component {
           <a href="#slide$next" class="btn btn-circle">&gt;</a>
         </div>
       </div>
-""";
+      """;
     }
 
-    return htmlToElements(
-        """
+    return htmlToElements("""
     <div class="carousel w-full $_className">
       $body
-    </div>
-""");
+    </div> 
+    """);
   }
 }

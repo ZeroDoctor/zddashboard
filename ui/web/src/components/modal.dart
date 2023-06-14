@@ -26,7 +26,7 @@ class Modal extends Component {
       <div class="modal-action">
         ${_action.outerHtml}
       </div>
-    </div>
-""");
+    </div> 
+    """);
   }
 }

@@ -2,12 +2,15 @@ import 'dart:html';
 
 import 'extern/plotly/dart_theme.dart';
 import 'extern/plotly/plotly.dart';
+import 'src/components/hero.dart';
 import 'src/components/navbar.dart';
-import 'src/form_data/global_food_prices.dart';
+import 'src/data/global_food_prices.dart';
 
 Navbar createNavbar() {
   return Navbar(
-    AnchorElement()..text = 'Dashboard',
+    AnchorElement()
+      ..className = 'text-2xl'
+      ..text = 'Dashboard',
     [
       Menu(
         AnchorElement()
@@ -20,23 +23,34 @@ Navbar createNavbar() {
   );
 }
 
-Future<List<Data>> fetchFoodPricesData() async {
+Hero createHero() {
+  return Hero(
+    "Hello there",
+    DivElement(),
+    backgroundImage:
+        "https://free4kwallpapers.com/uploads/originals/2020/06/28/old-stories-wallpaper.jpg",
+  );
+}
+
+Future<void> buildComponents() async {
+  // render elements
+  List<Element> responses =
+      await Future.wait([createNavbar().render(), createHero().render()]);
+
+  DivElement navbarContainer = querySelector('#navbar') as DivElement;
+  navbarContainer.children.add(responses[0]);
+
+  DivElement heroContainer = querySelector('#hero') as DivElement;
+  heroContainer.children.add(responses[1]);
+}
+
+Future<void> buildFoodPricesChart() async {
   List<CountryFoodPrice> countries = await fetchGlobalFoodPrices();
 
   countries.first.name = 'Global';
   List<CountryFoodPrice> global = averageFoodPrices(countries);
 
-  return formatPricesToData(global);
-}
-
-Future<void> main() async {
-  // render elements
-  List<Element> responses = await Future.wait([createNavbar().render()]);
-
-  DivElement navbarContainer = querySelector('#navbar') as DivElement;
-  navbarContainer.children.add(responses[0]);
-
-  List<Data> data = await fetchFoodPricesData();
+  List<Data> data = formatPricesToData(global);
 
   Layout layout = Layout(
     title: 'Global Food Prices',
@@ -51,9 +65,16 @@ Future<void> main() async {
 
   DivElement globalPricesContainer =
       querySelector('#globalPrices') as DivElement;
+
+  // remove loading place holder...
   while (globalPricesContainer.children.isNotEmpty) {
     globalPricesContainer.children.remove(globalPricesContainer.children.last);
   }
 
   newPlot('globalPrices', data, layout, config);
+}
+
+Future<void> main() async {
+  await buildComponents();
+  await buildFoodPricesChart();
 }

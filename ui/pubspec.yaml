@@ -1,10 +1,10 @@
-name: zdui_dart_framework
+name: zddashboard_ui
 description: An absolute bare-bones web app.
 version: 1.0.0
 # repository: https://github.com/my_org/my_repo
 
 environment:
-  sdk: '>=2.19.5 <3.0.0'
+  sdk: '>=3.0.0'
 
 # dependencies:
 #   path: ^1.8.0

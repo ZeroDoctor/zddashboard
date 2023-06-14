@@ -26,7 +26,7 @@ class Card extends Component {
           ${_action.outerHtml}
         </div>
       </div>
-    </div>
-""");
+    </div> 
+    """);
   }
 }

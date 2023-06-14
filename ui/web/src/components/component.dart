@@ -6,13 +6,13 @@ final NodeValidatorBuilder _htmlValidator = NodeValidatorBuilder.common()
   ..allowElement('ul', attributes: ['tabindex'])
   ..allowElement('li', attributes: ['tabindex'])
   ..allowElement('label', attributes: ['tabindex'])
-  ..allowSvg()
-  ;
+  ..allowElement('div', attributes: ['style'])
+  ..allowSvg();
 
 Element htmlToElements(String html) {
-    TemplateElement template = TemplateElement();
-    template.setInnerHtml(html, validator: _htmlValidator);
-    return template.content?.children[0] ?? DivElement();
+  TemplateElement template = TemplateElement();
+  template.setInnerHtml(html, validator: _htmlValidator);
+  return template.content?.children[0] ?? DivElement();
 }
 
 abstract class Component {

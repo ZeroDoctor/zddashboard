@@ -85,6 +85,6 @@ class Navbar extends Component {
     ${_endElement.outerHtml}
   </div>
 </div>
-    """);
+""");
   }
 }
