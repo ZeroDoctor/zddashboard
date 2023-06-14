@@ -27,3 +27,8 @@ Compile/Build js and css files
 ```sh
 make build
 ```
+
+## Documentation For CKEditor
+
+https://ckeditor.com/docs/ckeditor5/latest/installation/getting-started/quick-start.html
+

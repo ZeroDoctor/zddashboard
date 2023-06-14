@@ -82,14 +82,14 @@ func JobCmd() *cli.Command {
 }
 
 func RunCmd() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	app := cli.NewApp()
 	app.Commands = []*cli.Command{
 		WebCmd(),
 		JobCmd(),
 	}
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 
 	go func() {
 		if err := app.RunContext(ctx, os.Args); err != nil {

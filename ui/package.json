@@ -3,6 +3,7 @@
     "@tailwindcss/typography": "^0.5.9"
   },
   "dependencies": {
+    "@ckeditor/ckeditor5-build-classic": "^38.0.1",
     "daisyui": "^2.51.6"
   }
 }
