@@ -20,6 +20,8 @@ func GoExchangeRates(ctx context.Context, wg *sync.WaitGroup, dbh *db.DB, oes *s
 	defer tick.Stop()
 
 	go func() {
+		RunLatestExchangeRates(dbh, oes)
+
 		for {
 			select {
 			case <-ctx.Done():

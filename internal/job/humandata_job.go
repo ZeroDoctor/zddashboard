@@ -20,6 +20,8 @@ func GoLatestFoodPrices(ctx context.Context, wg *sync.WaitGroup, dbh *db.DB, hds
 	defer tick.Stop()
 
 	go func() {
+		RunLatestFoodPrices(dbh, hds)
+
 		for {
 			select {
 			case <-ctx.Done():
