@@ -2,6 +2,7 @@ package job
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"github.com/zerodoctor/zddashboard/internal/db"
@@ -11,8 +12,9 @@ import (
 
 const ER_PERIOD time.Duration = 12 * time.Hour
 
-func GoExchangeRates(ctx context.Context, dbh *db.DB, oes *service.OpenExchangeService) {
+func GoExchangeRates(ctx context.Context, wg *sync.WaitGroup, dbh *db.DB, oes *service.OpenExchangeService) {
 	log.Info("running latest exchange rates ticker...")
+	wg.Add(1)
 
 	tick := time.NewTicker(ER_PERIOD)
 	defer tick.Stop()
@@ -21,6 +23,8 @@ func GoExchangeRates(ctx context.Context, dbh *db.DB, oes *service.OpenExchangeS
 		for {
 			select {
 			case <-ctx.Done():
+				log.Info("stop latest exchange rates ticker...")
+				wg.Done()
 				return
 			case t := <-tick.C:
 				log.Infof("running latest exchange rates job [tick=%s]...", t.UTC().Format(time.RFC3339))
@@ -29,8 +33,6 @@ func GoExchangeRates(ctx context.Context, dbh *db.DB, oes *service.OpenExchangeS
 			}
 		}
 	}()
-
-	log.Info("stop latest exchange rates ticker...")
 }
 
 func RunLatestExchangeRates(dbh *db.DB, oes *service.OpenExchangeService) {

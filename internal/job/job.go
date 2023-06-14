@@ -2,6 +2,7 @@ package job
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"github.com/zerodoctor/zddashboard/internal/db"
@@ -18,7 +19,7 @@ const (
 	YEAR  time.Duration = 52 * WEEK
 )
 
-func StartJobs(ctx context.Context, dbh *db.DB, services *service.Services) {
-	go GoLatestFoodPrices(ctx, dbh, services.HDservice)
-	go GoExchangeRates(ctx, dbh, services.OEservice)
+func StartJobs(ctx context.Context, wg *sync.WaitGroup, dbh *db.DB, services *service.Services) {
+	GoLatestFoodPrices(ctx, wg, dbh, services.HDservice)
+	GoExchangeRates(ctx, wg, dbh, services.OEservice)
 }

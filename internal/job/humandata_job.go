@@ -2,6 +2,7 @@ package job
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"github.com/zerodoctor/zddashboard/internal/db"
@@ -11,8 +12,9 @@ import (
 
 const LFP_PERIOD time.Duration = YEAR
 
-func GoLatestFoodPrices(ctx context.Context, dbh *db.DB, hds *service.HumanDataService) {
+func GoLatestFoodPrices(ctx context.Context, wg *sync.WaitGroup, dbh *db.DB, hds *service.HumanDataService) {
 	log.Info("running latest food prices ticker...")
+	wg.Add(1)
 
 	tick := time.NewTicker(LFP_PERIOD)
 	defer tick.Stop()
@@ -21,6 +23,8 @@ func GoLatestFoodPrices(ctx context.Context, dbh *db.DB, hds *service.HumanDataS
 		for {
 			select {
 			case <-ctx.Done():
+				log.Info("stop latest food prices ticker...")
+				wg.Done()
 				return
 			case t := <-tick.C:
 				log.Infof("running latest food prices job [tick=%s]...", t.UTC().Format(time.RFC3339))
@@ -29,8 +33,6 @@ func GoLatestFoodPrices(ctx context.Context, dbh *db.DB, hds *service.HumanDataS
 			}
 		}
 	}()
-
-	log.Info("stop latest food prices ticker...")
 }
 
 func RunLatestFoodPrices(dbh *db.DB, hds *service.HumanDataService) {

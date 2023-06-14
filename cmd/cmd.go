@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"os"
+	"sync"
 
 	"github.com/urfave/cli/v2"
 	"github.com/zerodoctor/zddashboard/internal/controller"
@@ -25,7 +26,7 @@ func ConnectDB() *db.DB {
 	return conn
 }
 
-func WebCmd() *cli.Command {
+func WebCmd(wg *sync.WaitGroup) *cli.Command {
 	return &cli.Command{
 		Name:    "web",
 		Aliases: []string{"w"},
@@ -35,7 +36,7 @@ func WebCmd() *cli.Command {
 
 			services := service.NewServices(conn)
 
-			job.StartJobs(ctx.Context, conn, services)
+			job.StartJobs(ctx.Context, wg, conn, services)
 
 			if err := controller.NewController(conn, services).Run(os.Getenv("WEB_PORT")); err != nil {
 				log.Fatalf("failed to run gin controller [error=%s]", err.Error())
@@ -82,14 +83,16 @@ func JobCmd() *cli.Command {
 }
 
 func RunCmd() {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	var wg sync.WaitGroup
 
 	app := cli.NewApp()
 	app.Commands = []*cli.Command{
-		WebCmd(),
+		WebCmd(&wg),
 		JobCmd(),
 	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	go func() {
 		if err := app.RunContext(ctx, os.Args); err != nil {
@@ -103,5 +106,6 @@ func RunCmd() {
 		cancel()
 	})
 
+	wg.Wait()
 	log.Info("bye.")
 }
