@@ -48,6 +48,7 @@ func NewController(dbh *db.DB, services *service.Services) *Controller {
 
 	router.GET("/healthcheck", HealthCheck)
 	router.GET("/", IndexPage)
+	router.GET("/index.html", IndexPage)
 	router.GET("/pages", PagePage)
 
 	{
