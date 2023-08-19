@@ -33,23 +33,23 @@ type Controller struct {
 //
 //	@externalDocs.description	OpenAPI
 //	@externalDocs.url			https://swagger.io/resources/open-api/
-func NewController(dbh *db.DB, services *service.Services) *Controller {
+func NewController(dbh *db.DB, services *service.Services, serveUI bool) *Controller {
 	hdcontroller := NewHumanDataController(dbh, services.HDservice, services.OEservice)
 
 	router := gin.Default()
 
-	t, err := loadTemplate(router)
-	if err != nil {
-		log.Fatalf("failed to load template [error=%s]", err.Error())
-	}
-	router.SetHTMLTemplate(t)
+	if serveUI {
+		t, err := loadTemplate(router)
+		if err != nil {
+			log.Fatalf("failed to load template [error=%s]", err.Error())
+		}
+		router.SetHTMLTemplate(t)
 
-	router.StaticFile("/favicon.ico", "./ui/build/favicon.ico")
+		router.GET("/", IndexPage)
+		router.GET("/index.html", IndexPage)
+	}
 
 	router.GET("/healthcheck", HealthCheck)
-	router.GET("/", IndexPage)
-	router.GET("/index.html", IndexPage)
-	router.GET("/pages", PagePage)
 
 	{
 		apiRouter := router.Group("/api")
@@ -73,10 +73,6 @@ func HealthCheck(ctx *gin.Context) {
 
 func IndexPage(ctx *gin.Context) {
 	ctx.HTML(http.StatusOK, "index.html", nil)
-}
-
-func PagePage(ctx *gin.Context) {
-	ctx.HTML(http.StatusOK, "pages/index.html", nil)
 }
 
 // BindQueryInput instances an httpin engine for an input struct as a gin middleware.
