@@ -30,7 +30,13 @@ func WebCmd(wg *sync.WaitGroup) *cli.Command {
 	return &cli.Command{
 		Name:    "web",
 		Aliases: []string{"w"},
-		Usage:   "init db, start jobs, and runs web service",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:  "ui",
+				Usage: "enable serving ui files if true",
+			},
+		},
+		Usage: "init db, start jobs, and runs web service",
 		Action: func(ctx *cli.Context) error {
 			conn := ConnectDB()
 
@@ -38,7 +44,8 @@ func WebCmd(wg *sync.WaitGroup) *cli.Command {
 
 			job.StartJobs(ctx.Context, wg, conn, services)
 
-			if err := controller.NewController(conn, services).Run(os.Getenv("WEB_PORT")); err != nil {
+			serveUI := ctx.Bool("ui")
+			if err := controller.NewController(conn, services, serveUI).Run(os.Getenv("WEB_PORT")); err != nil {
 				log.Fatalf("failed to run gin controller [error=%s]", err.Error())
 			}
 
