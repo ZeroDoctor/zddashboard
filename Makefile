@@ -25,6 +25,10 @@ serve: ui
 build: ui build-swagger
 	go build -o zddashboard ./cmd/*.go
 	
-.PHONY: br 
+.PHONY: br
 br: build
 	./zddashboard w
+
+.PHONY: bru
+bru: build
+	./zddashboard w --ui=true
