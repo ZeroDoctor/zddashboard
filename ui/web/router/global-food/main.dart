@@ -1,47 +1,16 @@
 import 'dart:html';
 
-import 'extern/plotly/dart_theme.dart';
-import 'extern/plotly/plotly.dart';
-import 'src/components/hero.dart';
-import 'src/components/navbar.dart';
-import 'src/data/global_food_prices.dart';
-
-Navbar createNavbar() {
-  return Navbar(
-    AnchorElement()
-      ..className = 'text-2xl'
-      ..text = 'Dashboard',
-    [
-      Menu(
-        AnchorElement()
-          ..href = '/pages'
-          ..text = 'Pages',
-        [],
-      ),
-    ],
-    DivElement(),
-  );
-}
-
-Hero createHero() {
-  return Hero(
-    "Hello there",
-    DivElement(),
-    backgroundImage:
-        "https://free4kwallpapers.com/uploads/originals/2020/06/28/old-stories-wallpaper.jpg",
-  );
-}
+import '../../extern/plotly/dart_theme.dart';
+import '../../extern/plotly/plotly.dart';
+import '../main.dart';
+import '../../src/data/global_food_prices.dart';
 
 Future<void> buildComponents() async {
   // render elements
-  List<Element> responses =
-      await Future.wait([createNavbar().render(), createHero().render()]);
+  List<Element> responses = await Future.wait([createNavbar().render()]);
 
   DivElement navbarContainer = querySelector('#navbar') as DivElement;
   navbarContainer.children.add(responses[0]);
-
-  DivElement heroContainer = querySelector('#hero') as DivElement;
-  heroContainer.children.add(responses[1]);
 }
 
 Future<void> buildFoodPricesChart() async {

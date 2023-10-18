@@ -1,6 +1,6 @@
 import 'dart:html';
 
-import '../src/util/html.dart';
+import '../../src/util/html.dart';
 
 void main() {
   BodyElement body = querySelector('#output') as BodyElement;
@@ -12,7 +12,7 @@ void main() {
       </div>
 
       <div>
-        <a href="/">Home</a>
+        <a href="/">Home Page</a>
       </div>
     </div>
 """));

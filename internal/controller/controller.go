@@ -3,7 +3,9 @@ package controller
 import (
 	"context"
 	"errors"
+	"io/fs"
 	"net/http"
+	"os"
 
 	"github.com/ggicci/httpin"
 	"github.com/gin-gonic/gin"
@@ -47,8 +49,27 @@ func NewController(dbh *db.DB, services *service.Services) *Controller {
 	router.StaticFile("/favicon.ico", "./ui/build/favicon.ico")
 
 	router.GET("/healthcheck", HealthCheck)
-	router.GET("/", IndexPage)
-	router.GET("/pages", PagePage)
+
+	router.GET("/", func(ctx *gin.Context) {
+		ctx.HTML(http.StatusOK, "router/index.html", nil)
+	})
+
+	fs.WalkDir(os.DirFS("./ui/build"), "router", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			log.Errorf("failed to load index.html [error=%s]", err.Error())
+			return nil
+		}
+
+		if !d.IsDir() {
+			return nil
+		}
+
+		router.GET("/"+d.Name(), func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, path+"/index.html", nil)
+		})
+
+		return nil
+	})
 
 	{
 		apiRouter := router.Group("/api")
@@ -68,14 +89,6 @@ func NewController(dbh *db.DB, services *service.Services) *Controller {
 
 func HealthCheck(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
-}
-
-func IndexPage(ctx *gin.Context) {
-	ctx.HTML(http.StatusOK, "index.html", nil)
-}
-
-func PagePage(ctx *gin.Context) {
-	ctx.HTML(http.StatusOK, "pages/index.html", nil)
 }
 
 // BindQueryInput instances an httpin engine for an input struct as a gin middleware.

@@ -1,0 +1,22 @@
+{{ template "html-start" }}
+
+<head>
+    {{ template "meta" "Hello World" }}
+
+    <link rel="stylesheet" href="../dist/output.css">
+    <link rel="stylesheet" href="../styles.css">
+
+    <script defer src="router/global-food/main.dart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.20.0.min.js" charset="utf-8"></script>
+</head>
+
+<body id="output">
+    <div id="navbar"></div>
+    <div id="container" class="p-4 lg:grid">
+        <div id="globalPrices" class="place-self-center lg:mx-4 max-w-screen-lg">
+            {{ template "loading-circle" }}
+        </div>
+    </div>
+</body>
+  
+{{ template "html-end" }}
