@@ -1,19 +1,21 @@
 {{ template "html-start" }}
 
 <head>
-    {{ template "meta" "Hello World" }}
+    {{ template "meta" "Micro" }}
 
-    <link rel="stylesheet" href="../dist/output.css">
-    <link rel="stylesheet" href="../styles.css">
-    <link rel="stylesheet" href="node_modules/litegraph.js/css/litegraph.css">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/dist/output.css">
+    <link type="text/css" rel="stylesheet" href="/dist/litegraph.css">
 
-    <script defer src="router/micro/main.dart.js"></script>
-    <script defer src="../../../node_modules/litegraph.js/build/litegraph.core.min.js"></script>
+    <script type="text/javascript" src="/dist/js/litegraph.min.js"></script>
+    <script defer src="/router/micro/main.dart.js"></script>
 </head>
 
 <body id="output">
     <div id="navbar"></div>
-    <canvas id="graph" width="1024" height="720"></canvas>
+    <div class="flex justify-center litegraph">
+        <canvas id="canvas" width="1024" height="720"></canvas>
+    </div>
 </body>
   
 {{ template "html-end" }}

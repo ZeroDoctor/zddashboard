@@ -14,20 +14,27 @@ Future<void> buildComponents() async {
 Future<void> main() async {
   await buildComponents();
 
-  var graph = LGraph();
-  LGraphCanvas(canvas: "#canvas", graph: graph);
+  liteGraph.debug = true;
 
-  LGraphNode node = createNode("basic/const");
-  node.pos = [200, 200];
+  LGraph graph = LGraph();
 
-  graph.add(node);
-  node.setValue(4.5);
+  LGraphCanvas("#canvas", graph);
 
-  LGraphNode nodeWatch = createNode("basic/watch");
+  var nodeConst = liteGraph.createNode("basic/const");
+  nodeConst.pos = [200, 200];
+
+  graph.add(nodeConst);
+  nodeConst.setValue(4.5);
+
+  var nodeWatch = liteGraph.createNode("basic/watch");
   nodeWatch.pos = [700, 200];
   graph.add(nodeWatch);
 
-  node.connect(0, nodeWatch, 0);
+  nodeConst.connect(0, nodeWatch, 0);
 
   graph.start();
+}
+
+void log(dynamic o) {
+  window.console.log(o);
 }

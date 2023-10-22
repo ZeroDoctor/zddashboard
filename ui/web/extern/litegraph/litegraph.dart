@@ -1,82 +1,28 @@
 // docs: https://github.com/jagenjo/litegraph.js/wiki/First-Project
 // docs: https://htmlpreview.github.io/?https://raw.githubusercontent.com/jagenjo/litegraph.js/master/doc/classes/ContextMenu.html#api-classes
 
-@JS('LiteGraph')
+// ignore_for_file: non_constant_identifier_names
+
 library litegraph.js;
 
 import 'dart:html';
 
 import 'package:js/js.dart';
 
-external void addNodeMethod(Function func);
-
-external LGraphNode createNode([String? type, String? name, dynamic options]);
-
-external LGraphNode getNodeType(String type);
-
-external List<dynamic> getNodeTypeCategories();
-
-external void registerNodeType(String type, dynamic baseClass);
-
-external void wrapFunctionAsNode(String name, Function func,
-    List<dynamic> paramTypes, String returnType, dynamic properties);
-
-@JS()
-@anonymous
-class ContextMenu {
+@JS('LiteGraph.ContextMenu.prototype')
+class ContextMenuProto {
   external List<dynamic> get values;
   external dynamic get options;
-
-  external factory ContextMenu({
-    List<dynamic> values,
-    dynamic options,
-  });
 }
 
-@JS()
-@anonymous
-class LGraph {
-  external factory LGraph({
-    dynamic o,
-  });
+@JS('LiteGraph.ContextMenu')
+class ContextMenu extends ContextMenuProto {
+  external ContextMenuProto prototype;
 
-  external void add(dynamic node);
-  external void addGlobalInput(String name, String type, dynamic value);
-  external void addOutput(String name, String type, dynamic value);
-  external void arrange();
-  external void changeInputType(String name, String type);
-  external void changeOutputType(String name, String type);
-  external void clear();
-  external void clearTriggeredSlots();
-  external bool? configure(String str, bool returns);
-  external void detachCanvas(LGraphCanvas graphCanvas);
-  external List<LGraphNode> findNodesByClass(dynamic classObject);
-  external List<LGraphNode> findNodesByTitle(String name);
-  external List<LGraphNode> findNodesByType(String type);
-  external List<LGraphNode> getAncestors(LGraphNode node);
-  external num getElapsedTime();
-  external num getFixedTime();
-  external LGraphGroup getGroupOnPos(num x, num y);
-  external dynamic getInputData(String name);
-  external LGraphNode getNodeById(num id);
-  external LGraphNode getNodeOnPos(num x, num y, List<dynamic> nodesList);
-  external void getOutputData(String name);
-  external num getTime();
-  external void isLive();
-  external void remove(LGraphNode node);
-  external bool removeInput(String name, String type);
-  external void removeLink(num linkId);
-  external void removeOutput(String name);
-  external void renameInput(String oldName, String newName);
-  external void renameOutput(oldName, newName);
-  external void runStep(num num);
-  external void sendEventToAllNodes(String eventName, List<dynamic> params);
-  external dynamic serialize();
-  external void setGlobalInputData(String name, dynamic data);
-  external void setOutputData(String name, String value);
-  external void start([num? interval]);
-  external void stopExecution();
-  external void updateExecutionOrder();
+  external ContextMenu([
+    List<dynamic> values,
+    dynamic options,
+  ]);
 }
 
 @JS()
@@ -235,14 +181,14 @@ class LLink {
   external num? targetID;
   external num? targetSlot;
 
-  external factory LLink({
+  external LLink([
     num id,
     String type,
     num originID,
     num originSlot,
     num targetID,
     num targetSlot,
-  });
+  ]);
 
   external void configure(dynamic o);
   external SerializedLLink serialize();
@@ -299,44 +245,13 @@ class SerializedLGraphNode<T extends LGraphNode> {
       };
 }
 
-@JS()
-@anonymous
-class LGraphNode {
-  external String title;
-  external String? type;
-  external List<num> size;
-  external LGraph? graph;
+@JS('LiteGraph.LGraphNode.prototype')
+class LGraphNodeProto {
   external List<num> pos;
-  external bool isSelected;
-  external bool mouseOver;
-  external num id;
-  external List<INodeInputSlot> inputs;
-  external List<INodeOutputSlot> outputs;
-  external List<dynamic> connections;
-  external Record properties;
-  external List<dynamic> propertiesInfo;
-  external dynamic flags;
-  external String color;
-  external String bgcolor;
-  external String boxcolor;
-  external num shape;
-  external bool serializeWidgets;
-  external bool skipList;
-  external dynamic mode;
-  external bool widgetsUp;
-  external num widgetsStartY;
-  external bool clipArea;
-  external bool resizable;
-  external bool horizontal;
-  external bool hasErrors;
-
-  external factory LGraphNode({
-    String title,
-  });
 
   external void addConnection(
       String name, String type, List<num> pos, String direction);
-  external void addInput(String name, String type, dynamic extraInfo);
+  external void addInput(String name, String type, [dynamic extraInfo]);
   external void addInputs(List<dynamic> array);
   external void addOutput(String name, String type, dynamic extraInfo);
   external void addOutputs(List<dynamic> array);
@@ -354,12 +269,12 @@ class LGraphNode {
   external num findOutputSlot(String name);
   external List<num> getBounding();
   external List<num> getConnectionPos<T>(bool isInput, T slot, List<num> out);
-  external void getInputData(num slot, bool forceUpdate);
-  external void getInputDataByName(String slotName, bool forceUpdate);
+  external dynamic getInputData([num slot, bool forceUpdate]);
+  external dynamic getInputDataByName(String slotName, bool forceUpdate);
   external String getInputDataType(num slot);
   external LGraphNode getInputInfo(num slot);
   external LGraphNode getInputNode(num slot);
-  external void getInputOrProperty(String name);
+  external dynamic getInputOrProperty(String name);
   external dynamic getOutputData(num slot);
   external dynamic getOutputInfo(num slot);
   external List<LGraphNode> getOutputNode(num slot);
@@ -377,21 +292,203 @@ class LGraphNode {
   external void setOutputDataType(num slot, String datatype);
   external void setSize(List<num> size);
   external void setValue(num value);
+  external void onExecute();
   @override
   external String toString();
   external void trigger(String event, dynamic param);
   external void triggerSlot(num slot, dynamic param, num linkID);
 }
 
+@JS('LiteGraph.LGraphNode')
+class LGraphNode extends LGraphNodeProto {
+  external String name;
+  external LGraphNodeProto prototype;
+
+  external LGraphNode([
+    String? title,
+  ]);
+}
+
+class SubMenu {
+  List<ContextMenuItem>? options;
+}
+
+mixin MenuMixin on SubMenu, IContextMenuOptions {}
+
+interface class IContextMenuItem {
+  String content = "";
+  ContextMenuEventListener? callback;
+  String? title;
+  bool? disabled;
+  bool? hasSubmenu;
+  MenuMixin? subMenu;
+  String? className;
+}
+
+interface class IContextMenuOptions {
+  ContextMenuEventListener? callback;
+  bool? ignoreItemCallbacks;
+  dynamic event; // MouseEvent | CustomEvent;
+  ContextMenu? parentMenu;
+  bool? autoopen;
+  String? title;
+  dynamic extra;
+}
+
+typedef ContextMenuItem = IContextMenuItem?;
+typedef ContextMenuEventListener = bool? Function(
+  ContextMenuItem value,
+  IContextMenuOptions options,
+  MouseEvent event,
+  ContextMenu? parentMenu,
+  LGraphNode node,
+);
+
+class SerializedLGraphGroup {
+  String title = "";
+  LGraphGroup? bounding;
+  LGraphGroup? color;
+  LGraphGroup? font;
+
+  SerializedLGraphGroup(
+    title,
+    bounding,
+    color,
+    font,
+  );
+
+  SerializedLGraphGroup.fromJson(Map<String, dynamic> json)
+      : title = json["title"],
+        bounding = json["bounding"],
+        color = json["color"],
+        font = json["font"];
+
+  Map<String, dynamic> toJson() => {
+        'title': title,
+        'bounding': bounding,
+        'color': color,
+        'font': font,
+      };
+}
+
 @JS()
 @anonymous
-class LGraphCanvas {
-  external factory LGraphCanvas({
-    dynamic canvas,
-    LGraph graph,
-    dynamic options,
-  });
+class LGraphGroup {
+  external String title;
+  external List<num> bounding;
+  external String color;
+  external String font;
 
+  external void configure(SerializedLGraphGroup o);
+  external SerializedLGraphGroup serialize();
+  external void move(num deltaX, num deltaY, bool? ignoreNodes);
+  external void recomputeInsideNodes();
+  external bool Function(num x, num y) isPointInside;
+}
+
+@JS('LiteGraph.DragAndScale.prototype')
+class DragAndScaleProto {
+  external void bindEvents(HtmlElement element);
+  external void computeVisibleArea();
+  external void onMouse(MouseEvent e);
+  external void toCanvasContext(CanvasRenderingContext2D ctx);
+  external List<num> convertOffsetToCanvas(List<num> pos);
+  external List<num> convertCanvasToOffset(List<num> pos);
+  external void mouseDrag(num x, num y);
+  external void changeScale(num value, List<num> zoomingCenter);
+  external void changeDeltaScale(num value, List<num> zoomingCenter);
+  external void reset();
+}
+
+@JS('LiteGraph.DragAndScale')
+class DragAndScale extends DragAndScaleProto {
+  external String name;
+  external DragAndScaleProto prototype;
+
+  external DragAndScale([
+    HtmlElement element,
+    bool skipEvents,
+  ]);
+}
+
+@JS('LiteGraph')
+external LiteGraph liteGraph;
+
+@JS('LiteGraph')
+@anonymous
+class LiteGraph {
+  external bool debug;
+  external num VERSION;
+
+  external LGraph lGraph;
+
+  external LGraphCanvas lGraphCanvas;
+
+  external void addNodeMethod(Function() func);
+
+  external LGraphNode createNode([String? type, String? name, dynamic options]);
+
+  external dynamic getNodeType(String type);
+
+  external List<dynamic> getNodeTypeCategories();
+
+  external void registerNodeType(String type, dynamic baseClass);
+
+  external void wrapFunctionAsNode(String name, Function() func,
+      List<dynamic> paramTypes, String returnType, dynamic properties);
+}
+
+@JS('LiteGraph.LGraph.prototype')
+abstract class LGraphProto {
+  external void add(dynamic node);
+  external void addGlobalInput(String name, String type, dynamic value);
+  external void addOutput(String name, String type, dynamic value);
+  external void arrange();
+  external void changeInputType(String name, String type);
+  external void changeOutputType(String name, String type);
+  external void clear();
+  external void clearTriggeredSlots();
+  external bool? configure(String str, bool returns);
+  external void detachCanvas(LGraphCanvas graphCanvas);
+  external List<LGraphNode> findNodesByClass(dynamic classObject);
+  external List<LGraphNode> findNodesByTitle(String name);
+  external List<LGraphNode> findNodesByType(String type);
+  external List<LGraphNode> getAncestors(LGraphNode node);
+  external num getElapsedTime();
+  external num getFixedTime();
+  external LGraphGroup getGroupOnPos(num x, num y);
+  external dynamic getInputData(String name);
+  external LGraphNode getNodeById(num id);
+  external LGraphNode getNodeOnPos(num x, num y, List<dynamic> nodesList);
+  external void getOutputData(String name);
+  external num getTime();
+  external void isLive();
+  external void remove(LGraphNode node);
+  external bool removeInput(String name, String type);
+  external void removeLink(num linkId);
+  external void removeOutput(String name);
+  external void renameInput(String oldName, String newName);
+  external void renameOutput(oldName, newName);
+  external void runStep(num num);
+  external void sendEventToAllNodes(String eventName, List<dynamic> params);
+  external dynamic serialize();
+  external void setGlobalInputData(String name, dynamic data);
+  external void setOutputData(String name, String value);
+  external void start([num? interval]);
+  external void stopExecution();
+  external void updateExecutionOrder();
+}
+
+@JS('LiteGraph.LGraph')
+class LGraph extends LGraphProto {
+  external String name;
+  external LGraphProto prototype;
+
+  external LGraph([dynamic o]);
+}
+
+@JS('LiteGraph.LGraphCanvas.prototype')
+class LGraphCanvasProto {
   external void clear();
   external void setGraph(LGraph graph, bool skipClear);
   external void openSubgraph(LGraph graph);
@@ -479,99 +576,14 @@ class LGraphCanvas {
   external List<ContextMenu> getCanvasMenuOptions();
 }
 
-class SubMenu {
-  List<ContextMenuItem>? options;
-}
+@JS('LiteGraph.LGraphCanvas')
+class LGraphCanvas extends LGraphCanvasProto {
+  external String name;
+  external LGraphCanvasProto prototype;
 
-mixin MenuMixin on SubMenu, IContextMenuOptions {}
-
-interface class IContextMenuItem {
-  String content = "";
-  ContextMenuEventListener? callback;
-  String? title;
-  bool? disabled;
-  bool? hasSubmenu;
-  MenuMixin? subMenu;
-  String? className;
-}
-
-interface class IContextMenuOptions {
-  ContextMenuEventListener? callback;
-  bool? ignoreItemCallbacks;
-  dynamic event; // MouseEvent | CustomEvent;
-  ContextMenu? parentMenu;
-  bool? autoopen;
-  String? title;
-  dynamic extra;
-}
-
-typedef ContextMenuItem = IContextMenuItem?;
-typedef ContextMenuEventListener = bool? Function(
-  ContextMenuItem value,
-  IContextMenuOptions options,
-  MouseEvent event,
-  ContextMenu? parentMenu,
-  LGraphNode node,
-);
-
-class SerializedLGraphGroup {
-  String title = "";
-  LGraphGroup? bounding;
-  LGraphGroup? color;
-  LGraphGroup? font;
-
-  SerializedLGraphGroup(
-    title,
-    bounding,
-    color,
-    font,
-  );
-
-  SerializedLGraphGroup.fromJson(Map<String, dynamic> json)
-      : title = json["title"],
-        bounding = json["bounding"],
-        color = json["color"],
-        font = json["font"];
-
-  Map<String, dynamic> toJson() => {
-        'title': title,
-        'bounding': bounding,
-        'color': color,
-        'font': font,
-      };
-}
-
-@JS()
-@anonymous
-class LGraphGroup {
-  external String title;
-  external List<num> bounding;
-  external String color;
-  external String font;
-
-  external void configure(SerializedLGraphGroup o);
-  external SerializedLGraphGroup serialize();
-  external void move(num deltaX, num deltaY, bool? ignoreNodes);
-  external void recomputeInsideNodes();
-  external bool Function(num x, num y) isPointInside;
-}
-
-@JS()
-@anonymous
-class DragAndScale {
-  external factory DragAndScale({
-    HtmlElement element,
-    bool skipEvents,
-  });
-
-  external void bindEvents(HtmlElement element);
-  external void computeVisibleArea();
-  external void onMouse(MouseEvent e);
-  external void toCanvasContext(CanvasRenderingContext2D ctx);
-  external List<num> convertOffsetToCanvas(List<num> pos);
-  external List<num> convertCanvasToOffset(List<num> pos);
-  external void mouseDrag(num x, num y);
-  external void changeScale(num value, List<num> zoomingCenter);
-  external void changeDeltaScale(num value, List<num> zoomingCenter);
-  external void reset();
+  external LGraphCanvas([
+    dynamic canvas,
+    LGraph? graph,
+    dynamic options,
+  ]);
 }
