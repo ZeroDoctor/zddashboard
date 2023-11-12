@@ -16,12 +16,16 @@ Future<void> main() async {
 
   liteGraph.debug = true;
 
+  // liteGraph.registerNodeType("micro/sum", JsObject.jsify(micro.toMap()));
+
   LGraph graph = LGraph();
+  log(graph);
 
   LGraphCanvas("#canvas", graph);
 
   var nodeConst = liteGraph.createNode("basic/const");
   nodeConst.pos = [200, 200];
+  log(nodeConst);
 
   graph.add(nodeConst);
   nodeConst.setValue(4.5);

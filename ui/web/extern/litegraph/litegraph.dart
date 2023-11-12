@@ -173,13 +173,22 @@ class SerializedLLink {
 
 @JS()
 @anonymous
-class LLink {
+class LLinkProto {
   external num? id;
   external String? type;
   external num? originID;
   external num? originSlot;
   external num? targetID;
   external num? targetSlot;
+
+  external void configure(dynamic o);
+  external SerializedLLink serialize();
+}
+
+@JS('LiteGraph.LLink')
+class LLink extends LLinkProto {
+  external String name;
+  external LLinkProto prototype;
 
   external LLink([
     num id,
@@ -189,9 +198,6 @@ class LLink {
     num targetID,
     num targetSlot,
   ]);
-
-  external void configure(dynamic o);
-  external SerializedLLink serialize();
 }
 
 class SerializedLGraphNode<T extends LGraphNode> {
@@ -243,70 +249,6 @@ class SerializedLGraphNode<T extends LGraphNode> {
         'outputs': outputs,
         'properites': properties,
       };
-}
-
-@JS('LiteGraph.LGraphNode.prototype')
-class LGraphNodeProto {
-  external List<num> pos;
-
-  external void addConnection(
-      String name, String type, List<num> pos, String direction);
-  external void addInput(String name, String type, [dynamic extraInfo]);
-  external void addInputs(List<dynamic> array);
-  external void addOutput(String name, String type, dynamic extraInfo);
-  external void addOutputs(List<dynamic> array);
-  external void addProperty(
-      String name, dynamic defaultValue, String type, dynamic extraInfo);
-  external dynamic addWidget();
-  external void clearTriggeredSlot(num slot, num linkID);
-  external void collapse();
-  external num computeSize(num minHeight);
-  external void configure(SerializedLGraphNode info);
-  external T? connect<T, Y>(T slot, LGraphNode node, Y targetSlot);
-  external bool disconnectInput<T>(T slot);
-  external bool disconnectOutput<T>(T slot, LGraphNode targetNode);
-  external num findInputSlot(String name);
-  external num findOutputSlot(String name);
-  external List<num> getBounding();
-  external List<num> getConnectionPos<T>(bool isInput, T slot, List<num> out);
-  external dynamic getInputData([num slot, bool forceUpdate]);
-  external dynamic getInputDataByName(String slotName, bool forceUpdate);
-  external String getInputDataType(num slot);
-  external LGraphNode getInputInfo(num slot);
-  external LGraphNode getInputNode(num slot);
-  external dynamic getInputOrProperty(String name);
-  external dynamic getOutputData(num slot);
-  external dynamic getOutputInfo(num slot);
-  external List<LGraphNode> getOutputNode(num slot);
-  external dynamic getSlotInPosition(num x, num y);
-  external String getTitle();
-  external bool isAnyOutputConnected();
-  external bool isInputConnected(num slot);
-  external bool isOutputConnected(num slot);
-  external bool isPointInside(num x, num y);
-  external void pin();
-  external void removeInput(num slot);
-  external void removeOutput(num slot);
-  external LGraphNode serialize();
-  external void setOutputData(num slot, dynamic data);
-  external void setOutputDataType(num slot, String datatype);
-  external void setSize(List<num> size);
-  external void setValue(num value);
-  external void onExecute();
-  @override
-  external String toString();
-  external void trigger(String event, dynamic param);
-  external void triggerSlot(num slot, dynamic param, num linkID);
-}
-
-@JS('LiteGraph.LGraphNode')
-class LGraphNode extends LGraphNodeProto {
-  external String name;
-  external LGraphNodeProto prototype;
-
-  external LGraphNode([
-    String? title,
-  ]);
 }
 
 class SubMenu {
@@ -421,19 +363,14 @@ class LiteGraph {
   external num VERSION;
 
   external LGraph lGraph;
-
   external LGraphCanvas lGraphCanvas;
+  external LGraphNode lGraphNode;
 
   external void addNodeMethod(Function() func);
-
   external LGraphNode createNode([String? type, String? name, dynamic options]);
-
   external dynamic getNodeType(String type);
-
   external List<dynamic> getNodeTypeCategories();
-
   external void registerNodeType(String type, dynamic baseClass);
-
   external void wrapFunctionAsNode(String name, Function() func,
       List<dynamic> paramTypes, String returnType, dynamic properties);
 }
@@ -458,7 +395,7 @@ abstract class LGraphProto {
   external num getFixedTime();
   external LGraphGroup getGroupOnPos(num x, num y);
   external dynamic getInputData(String name);
-  external LGraphNode getNodeById(num id);
+  external LGraphNode getNodeById(dynamic id);
   external LGraphNode getNodeOnPos(num x, num y, List<dynamic> nodesList);
   external void getOutputData(String name);
   external num getTime();
@@ -585,5 +522,69 @@ class LGraphCanvas extends LGraphCanvasProto {
     dynamic canvas,
     LGraph? graph,
     dynamic options,
+  ]);
+}
+
+@JS('LiteGraph.LGraphNode.prototype')
+class LGraphNodeProto {
+  external List<num> pos;
+
+  external void addConnection(
+      String name, String type, List<num> pos, String direction);
+  external void addInput(String name, String type, [dynamic extraInfo]);
+  external void addInputs(List<dynamic> array);
+  external void addOutput(String name, String type, dynamic extraInfo);
+  external void addOutputs(List<dynamic> array);
+  external void addProperty(
+      String name, dynamic defaultValue, String type, dynamic extraInfo);
+  external dynamic addWidget();
+  external void clearTriggeredSlot(num slot, num linkID);
+  external void collapse();
+  external num computeSize(num minHeight);
+  external void configure(SerializedLGraphNode info);
+  external T? connect<T, Y>(T slot, LGraphNode node, Y targetSlot);
+  external bool disconnectInput<T>(T slot);
+  external bool disconnectOutput<T>(T slot, LGraphNode targetNode);
+  external num findInputSlot(dynamic name);
+  external num findOutputSlot(dynamic name);
+  external List<num> getBounding();
+  external List<num> getConnectionPos<T>(bool isInput, T slot, List<num> out);
+  external dynamic getInputData([num slot, bool forceUpdate]);
+  external dynamic getInputDataByName(String slotName, bool forceUpdate);
+  external String getInputDataType(num slot);
+  external LGraphNode getInputInfo(num slot);
+  external LGraphNode getInputNode(num slot);
+  external dynamic getInputOrProperty(String name);
+  external dynamic getOutputData(num slot);
+  external dynamic getOutputInfo(num slot);
+  external List<LGraphNode> getOutputNode(num slot);
+  external dynamic getSlotInPosition(num x, num y);
+  external String getTitle();
+  external bool isAnyOutputConnected();
+  external bool isInputConnected(num slot);
+  external bool isOutputConnected(num slot);
+  external bool isPointInside(num x, num y);
+  external void pin();
+  external void removeInput(num slot);
+  external void removeOutput(num slot);
+  external LGraphNode serialize();
+  external void setOutputData(num slot, dynamic data);
+  external void setOutputDataType(num slot, String datatype);
+  external void setSize(List<num> size);
+  external void setValue(num value);
+  external void onExecute();
+  @override
+  external String toString();
+  external void trigger(String event, dynamic param);
+  external void triggerSlot(num slot, dynamic param, num linkID);
+}
+
+@JS('LiteGraph.LGraphNode')
+class LGraphNode extends LGraphNodeProto {
+  external String name;
+  external LGraphNodeProto prototype;
+
+  external LGraphNode([
+    String? title,
   ]);
 }
